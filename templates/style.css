@@ -251,3 +251,12 @@ main.doc { max-width: 860px; margin: 0 auto; padding: 26px 20px 80px; }
   background: var(--accent-soft); border-bottom: 1px solid var(--line); }
 .pick-todo code { background: var(--panel); border: 1px solid var(--line); border-radius: 5px;
   padding: 1px 5px; font-size: 11.5px; }
+
+/* ---------- 프로필 이미지 ---------- */
+.avatar { position: relative; display: inline-grid; place-items: center; flex: none;
+  width: var(--size, 24px); height: var(--size, 24px); border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent); overflow: hidden;
+  font-size: calc(var(--size, 24px) * .5); font-weight: 600; line-height: 1; }
+.avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.member-title { display: flex; align-items: center; gap: 10px; }
+.suggestions li.empty { border-top: 1px solid var(--line); color: var(--muted); padding: 9px 0; }

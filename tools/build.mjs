@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
-import { ROOT, MAX_PICKS, isoWeek, readWeeks } from "./weeks.mjs";
+import { ROOT, MAX_PICKS, PROGRAMMERS_LEVELS, LEETCODE_LEVELS, currentWeek, weekLabel, readWeeks } from "./weeks.mjs";
 import { splitDocument } from "./validate.mjs";
 
 const DIST = path.join(ROOT, "dist");
@@ -32,22 +32,36 @@ const link = (href) => `${BASE}${href}`;
 
 // ---------- 읽기 ----------
 
-async function readMembers() {
+async function readBoardMembers() {
   const root = path.join(ROOT, "members");
   const members = [];
   for (const entry of await readdir(root).catch(() => [])) {
     if (!entry.endsWith(".md")) continue;
     const login = entry.slice(0, -3);
-    const { body } = splitDocument(await readFile(path.join(root, entry), "utf8"), `members/${entry}`);
+    const { frontmatter, body } = splitDocument(await readFile(path.join(root, entry), "utf8"), `members/${entry}`);
     const [heading, ...rest] = body.split("\n");
+    const levels = frontmatter?.levels ?? {};
     members.push({
       login,
       name: heading.replace(/^#\s+/, "").trim() || login,
       bio: render(rest.join("\n").trim()),
+      // GitHub 프로필 이미지. 계정이 없으면 404 라서 사이트에서 이니셜로 대체한다.
+      avatar: `https://github.com/${encodeURIComponent(login)}.png?size=80`,
+      levels: {
+        programmers: levels.programmers ?? PROGRAMMERS_LEVELS,
+        leetcode: levels.leetcode ?? LEETCODE_LEVELS,
+      },
     });
   }
   return members.sort((a, b) => a.login.localeCompare(b.login));
 }
+
+// 아바타 이미지 + 계정이 없을 때 보일 이니셜
+const avatarHtml = (member, size = 26) => `
+  <span class="avatar" style="--size:${size}px">
+    <span class="initial">${esc([...member.name][0] ?? "?")}</span>
+    <img src="${esc(member.avatar)}" alt="" loading="lazy" onerror="this.remove()">
+  </span>`;
 
 async function readSolutions() {
   const root = path.join(ROOT, "solutions");
@@ -117,7 +131,7 @@ function boardPage({ weeks, members, solutions, current }) {
         if (!problem) continue;
         const solution = byKey.get(`${week.id}/${login}/${id}`);
         cards.push({
-          weekId: week.id, week: week.week, year: week.year, topic: week["topic-name"],
+          weekId: week.id, weekLabel: weekLabel(week), topic: week["topic-name"],
           login, name: member.name,
           problem: problem.id, title: problem.title, source: problem.source,
           difficulty: problem.difficulty, label: problem.label, kind,
@@ -129,14 +143,14 @@ function boardPage({ weeks, members, solutions, current }) {
     }
   }
 
-  const currentWeek = weeks.find((w) => w.year === current.year && w.week === current.week) ?? weeks[0] ?? null;
+  const thisWeek = weeks.find((w) => w.id === current.id) ?? weeks[0] ?? null;
 
   const body = `
 <div class="toolbar">
   <label for="fWeek">주차</label>
   <select id="fWeek">
-    ${currentWeek ? '<option value="current">이번 주</option>' : ""}
-    ${weeks.map((w) => `<option value="${w.id}">${w.year} ${w.week}주차 — ${esc(w["topic-name"])}</option>`).join("")}
+    ${thisWeek ? '<option value="current">이번 주</option>' : ""}
+    ${weeks.map((w) => `<option value="${w.id}">${weekLabel(w)} — ${esc(w["topic-name"])}</option>`).join("")}
     <option value="all">전체</option>
   </select>
   <label for="fDiff">난이도</label>
@@ -155,17 +169,10 @@ function boardPage({ weeks, members, solutions, current }) {
 </div>
 
 <main>
-  ${currentWeek ? `
+  ${thisWeek ? `
   <details class="panel suggestions">
-    <summary><b>이번 주 추천 문제</b> <span class="hint">· ${esc(currentWeek["topic-name"])} · 여기서 골라도 되고 다른 문제를 골라도 됩니다</span></summary>
-    <ul>
-      ${(currentWeek.suggestions ?? []).map((problem) => `
-        <li>
-          <span class="tag src-${problem.source}">${problem.source === "leetcode" ? "LeetCode" : "프로그래머스"}</span>
-          <span class="tag d${problem.difficulty}">${esc(problem.label)}</span>
-          <a href="${esc(problem.url)}" target="_blank" rel="noopener">${esc(problem.title)}</a>
-        </li>`).join("")}
-    </ul>
+    <summary><b>이번 주 추천 문제</b> <span class="hint" id="suggestNote">· ${esc(thisWeek["topic-name"])} · 여기서 골라도 되고 다른 문제를 골라도 됩니다</span></summary>
+    <ul id="suggestList"></ul>
   </details>` : ""}
   ${members.length === 0
     ? '<div class="panel"><b>아직 멤버가 없습니다.</b> <span class="hint">members/&lt;github-id&gt;.md 를 추가하는 PR을 열어주세요.</span></div>'
@@ -174,8 +181,12 @@ function boardPage({ weeks, members, solutions, current }) {
 
   const script = `<script>
 const CARDS = ${JSON.stringify(cards)};
-const MEMBERS = ${JSON.stringify(members.map(({ login, name }) => ({ login, name, page: link(`/m/${login}.html`) })))};
-const CURRENT = ${JSON.stringify(currentWeek?.id ?? null)};
+const MEMBERS = ${JSON.stringify(members.map(({ login, name, avatar, levels }) => ({
+  login, name, avatar, levels, initial: [...name][0] ?? "?", page: link(`/m/${login}.html`),
+})))};
+const SUGGESTIONS = ${JSON.stringify(thisWeek?.suggestions ?? [])};
+const TOPIC_NAME = ${JSON.stringify(thisWeek?.["topic-name"] ?? "")};
+const CURRENT = ${JSON.stringify(thisWeek?.id ?? null)};
 const STATUSES = ${JSON.stringify(STATUSES)};
 const MAX_PICKS = ${MAX_PICKS};
 const PENDING = ${JSON.stringify(weeks.flatMap((week) => Object.entries(week.assignments ?? {})
@@ -188,8 +199,8 @@ const PENDING = ${JSON.stringify(weeks.flatMap((week) => Object.entries(week.ass
 </script>
 <script src="${link("/app.js")}"></script>`;
 
-  const heading = currentWeek
-    ? `<span class="week-title">${currentWeek.year}년 ${currentWeek.week}주차 · <span class="topic">${esc(currentWeek["topic-name"])}</span></span>`
+  const heading = thisWeek
+    ? `<span class="week-title">${weekLabel(thisWeek)} · <span class="topic">${esc(thisWeek["topic-name"])}</span></span>`
     : '<span class="week-title hint">아직 주차가 없습니다</span>';
 
   return page({ title: "코딩테스트 스터디", heading, body, script });
@@ -206,7 +217,7 @@ function problemPage({ week, problem, members, solutions }) {
       <span class="tag src-${problem.source}">${problem.source === "leetcode" ? "LeetCode" : "프로그래머스"}</span>
       <span class="tag d${problem.difficulty}">${esc(problem.label)}</span>
       ${problem.kind === "random" ? '<span class="tag kind-random">랜덤</span>' : ""}
-      <span class="hint">${week.year}년 ${week.week}주차 · ${esc(week["topic-name"])}</span>
+      <span class="hint">${weekLabel(week)} · ${esc(week["topic-name"])}</span>
     </div>
     <h1>${esc(problem.title)}</h1>
     <a href="${esc(problem.url)}" target="_blank" rel="noopener">문제 풀러 가기 ↗</a>
@@ -220,6 +231,7 @@ function problemPage({ week, problem, members, solutions }) {
     return `
     <details class="sol" ${solution?.html ? "" : 'data-empty="1"'}>
       <summary>
+        ${avatarHtml(member, 22)}
         <span class="dot ${status}"></span>
         <b>${esc(member.name)}</b>
         <span class="hint">${STATUS_LABEL[status]}${solution?.language ? ` · ${esc(LANGUAGE_LABEL[solution.language] ?? solution.language)}` : ""}</span>
@@ -240,8 +252,8 @@ function problemPage({ week, problem, members, solutions }) {
 </main>`;
 
   return page({
-    title: `${problem.title} — ${week.year} ${week.week}주차`,
-    heading: `<span class="week-title">${week.year}년 ${week.week}주차 · <span class="topic">${esc(week["topic-name"])}</span></span>`,
+    title: `${problem.title} — ${weekLabel(week)}`,
+    heading: `<span class="week-title">${weekLabel(week)} · <span class="topic">${esc(week["topic-name"])}</span></span>`,
     body,
   });
 }
@@ -266,8 +278,13 @@ function memberPage({ member, weeks, solutions }) {
 
   const body = `
 <main class="doc">
-  <h1>${esc(member.name)}</h1>
-  <p class="hint">@${esc(member.login)} · 푼 문제 ${doneCount} / ${rows.length}</p>
+  <h1 class="member-title">${avatarHtml(member, 34)} ${esc(member.name)}</h1>
+  <p class="hint">
+    <a href="https://github.com/${esc(member.login)}" target="_blank" rel="noopener">@${esc(member.login)}</a>
+    · 푼 문제 ${doneCount} / ${rows.length}
+    · 선호 난이도 프로그래머스 ${member.levels.programmers.map((level) => `Lv.${level}`).join(", ")}
+    / LeetCode ${member.levels.leetcode.join(", ")}
+  </p>
   ${member.bio ? `<div class="markdown">${member.bio}</div>` : ""}
 
   <table class="member-table">
@@ -275,7 +292,7 @@ function memberPage({ member, weeks, solutions }) {
     <tbody>
       ${rows.map(({ week, problem, kind, status, language }) => `
         <tr>
-          <td class="hint">${week.year} ${week.week}주차</td>
+          <td class="hint">${weekLabel(week)}</td>
           <td>
             <a href="${link(`/p/${week.id}/${problem.id}.html`)}">${esc(problem.title)}</a>
             ${kind === "random" ? '<span class="tag kind-random">랜덤</span>' : ""}
@@ -293,8 +310,8 @@ function memberPage({ member, weeks, solutions }) {
 // ---------- 실행 ----------
 
 async function build() {
-  const [weeks, members, solutions] = await Promise.all([readWeeks(), readMembers(), readSolutions()]);
-  const current = isoWeek();
+  const [weeks, members, solutions] = await Promise.all([readWeeks(), readBoardMembers(), readSolutions()]);
+  const current = currentWeek();
 
   await rm(DIST, { recursive: true, force: true });
   await mkdir(DIST, { recursive: true });

@@ -6,7 +6,7 @@ import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parse, stringify } from "yaml";
 import {
-  ROOT, WEEK_ID, MAX_PICKS, isoWeek, readProblems, readWeeks, readMemberLogins,
+  ROOT, WEEK_ID, MAX_PICKS, currentWeek, readProblems, readWeeks, readMembers,
   assignMembers, assignedTo, problemMetadata, syncCatalog,
 } from "./weeks.mjs";
 import { parseProblemUrl, resolveProblem, LinkError } from "./problem-link.mjs";
@@ -29,16 +29,17 @@ export async function readPicks(root = ROOT) {
 }
 
 async function main() {
-  const [problems, weeks, logins, picks] = await Promise.all([
-    readProblems(), readWeeks(), readMemberLogins(), readPicks(),
+  const [problems, weeks, members, picks] = await Promise.all([
+    readProblems(), readWeeks(), readMembers(), readPicks(),
   ]);
-  if (logins.length === 0) {
+  const logins = members.map((member) => member.login);
+  if (members.length === 0) {
     console.log("assign: 등록된 멤버가 없습니다.");
     return;
   }
 
   const known = new Map(problems.map((problem) => [problem.id, problem]));
-  const today = isoWeek().start;
+  const today = currentWeek().start;
   let changed = 0;
 
   for (const week of weeks) {
@@ -88,7 +89,7 @@ async function main() {
 
     // (2) 랜덤 문제 자동 배정
     const withPicks = { ...week, assignments, problems: syncCatalog({ ...week, assignments }, resolved) };
-    const { added, week: next } = assignMembers(withPicks, { problems, weeks, logins });
+    const { added, week: next } = assignMembers(withPicks, { problems, weeks, members });
     changed += added;
     if (added > 0) {
       const newcomers = Object.keys(next.assignments).filter((login) => !week.assignments?.[login]?.random);

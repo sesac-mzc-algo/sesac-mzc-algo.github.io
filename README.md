@@ -22,10 +22,10 @@
 ## 구조
 
 ```
-weeks/2026-W37.yaml                    주차 주제 · 추천 문제 · 멤버별 할당 (워크플로가 관리)
-members/<github-id>.md                 스터디원 프로필
-picks/2026-W37/<github-id>.yaml        직접 고른 문제 링크 2개
-solutions/2026-W37/<github-id>/<문제-id>.md   풀이 (설명 + 코드)
+weeks/2026-09-W2.yaml                  주차 주제 · 추천 문제 · 멤버별 할당 (워크플로가 관리)
+members/<github-id>.md                 스터디원 프로필과 선호 난이도
+picks/2026-09-W2/<github-id>.yaml      직접 고른 문제 링크 2개
+solutions/2026-09-W2/<github-id>/<문제-id>.md   풀이 (설명 + 코드)
 data/problems.json                     수집된 문제 풀 (collect 워크플로가 갱신)
 data/programmers-seed.json             프로그래머스 큐레이션 목록
 tools/                                 수집 · 주차 생성 · 검증 · 사이트 빌드
@@ -35,15 +35,59 @@ examples/                              풀이 · 프로필 작성 예시
 
 ## 스터디 참여하기
 
+모든 변경은 **fork → 브랜치 → Pull Request** 로 올립니다. main에 직접 push하지 않습니다.
+
+### 0. 포크하고 클론하기
+
+레포 오른쪽 위 **Fork** 를 누른 뒤, 내 계정에 생긴 포크를 클론합니다.
+
+```bash
+git clone https://github.com/<내-github-id>/sesac-mzc-algo.github.io.git
+cd sesac-mzc-algo.github.io
+git remote add upstream https://github.com/sesac-mzc-algo/sesac-mzc-algo.github.io.git
+npm ci
+```
+
+작업할 때마다 upstream의 최신 main에서 브랜치를 땁니다.
+
+```bash
+git fetch upstream
+git switch -c solve/2026-09-W2 upstream/main
+```
+
+작업이 끝나면 내 포크에 push하고 PR을 엽니다.
+
+```bash
+git push -u origin solve/2026-09-W2
+gh pr create --repo sesac-mzc-algo/sesac-mzc-algo.github.io --fill
+```
+
+`gh` 가 없으면 push 후 GitHub이 띄워주는 **Compare & pull request** 버튼을 누르면 됩니다.
+PR을 열면 `check` 워크플로가 형식을 검사합니다. 초록불이 뜨면 머지하세요.
+
 ### 1. 멤버 등록
 
-`members/<github-id>.md` 를 추가하는 Pull Request를 엽니다. 파일명은 **소문자 GitHub ID**입니다.
+`members/<github-id>.md` 를 추가하는 PR을 엽니다. 파일명은 **소문자 GitHub ID**입니다.
+프로필 이미지는 GitHub 계정에서 자동으로 가져옵니다.
 
 ```md
+---
+levels:
+  programmers: [1, 2, 3, 4, 5]
+  leetcode: [Easy, Medium, Hard]
+---
+
 # 표시할 이름
 
 자기소개, 관심 분야, 사용하는 언어를 자유롭게 작성합니다.
 ```
+
+`levels` 는 **추천받고 싶은 난이도**입니다. 프로그래머스는 `1`~`5`, LeetCode는
+`Easy` / `Medium` / `Hard` 중에서 고릅니다. 보드의 추천 문제 목록과 자동 배정되는
+랜덤 문제가 이 범위에 맞춰집니다. 생략하면 전체 난이도를 받습니다.
+
+너무 쉽거나 어렵다 싶으면 이 파일만 고쳐 PR을 열면 됩니다.
+이미 배정된 문제는 그대로 두고, 다음 주차부터 반영됩니다.
 
 멤버 파일이 main에 들어가면 `assign` 워크플로가 **랜덤 문제 1개를 자동으로 배정**합니다.
 
@@ -53,7 +97,7 @@ examples/                              풀이 · 프로필 작성 예시
 다른 문제를 가져와도 됩니다. `picks/<주차>/<github-id>.yaml` 에 **링크만** 넣으면 됩니다.
 
 ```yaml
-# picks/2026-W37/jiwon.yaml
+# picks/2026-09-W2/sjungwon03.yaml
 - https://leetcode.com/problems/two-sum/
 - https://school.programmers.co.kr/learn/courses/30/lessons/42576
 ```
@@ -76,7 +120,7 @@ LeetCode와 프로그래머스 링크를 지원하고, 쿼리 문자열(`?envTyp
 
 ```
 solutions/<주차>/<github-id>/<문제-id>.md
-예: solutions/2026-W37/jiwon/programmers-1845.md
+예: solutions/2026-09-W2/sjungwon03/programmers-1845.md
 ```
 
 ~~~md
@@ -135,6 +179,12 @@ npm run validate   # 내가 쓴 파일 형식 검사
 `weekly` 와 `collect` 는 Actions 탭에서 **Run workflow** 로 직접 돌릴 수도 있습니다.
 `weekly` 는 주차(`2026-W40`)와 알고리즘(`greedy`)을 입력받아 미리 만들어둘 수도 있습니다.
 
+### 주차 표기
+
+주차는 `2026-09-W2` (2026년 9월 2주차) 형식입니다.
+ISO 주와 같은 규칙으로 **그 주의 목요일이 속한 달**을 그 주의 달로 봅니다.
+그래서 8월 31일(월)~9월 6일(일)은 `2026-09-W1` 이 됩니다.
+
 ### 주제 순환과 문제 선정
 
 주제는 [tools/topics.mjs](tools/topics.mjs) 의 커리큘럼 20개를 순환합니다.
@@ -145,12 +195,14 @@ npm run validate   # 내가 쓴 파일 형식 검사
 1. **직접 고른 문제 2개** — `picks/` 에 링크를 넣어 등록합니다.
 2. **랜덤 1개** — 주제와 무관하게 자동 배정됩니다.
 
-**추천 문제**는 주차 파일의 `suggestions` 에 6개 들어갑니다.
-두 사이트를 섞어 쉬운 것부터 어려운 것까지 고르고, 빈출 문제를 우선합니다.
+**추천 문제**는 주차 파일의 `suggestions` 에 12개 들어갑니다.
+두 사이트 x 난이도를 번갈아 담고, 빈출 문제를 우선합니다.
 같은 문제가 두 사이트에 겹치면(`N-Queen` / `N-Queens II`) 걸러냅니다.
+보드에서는 멤버를 고르면 그 사람의 `levels` 에 맞는 것만 보입니다.
 
-랜덤 문제는 **그 사람이 이전에 받은 적 없는 문제** 중에서 뽑고, 같은 주에 다른 멤버가
-이미 받은 문제는 되도록 피합니다. 같은 (주차, 멤버) 조합은 언제 돌려도 같은 결과입니다(시드 난수).
+랜덤 문제는 그 사람의 `levels` 안에서, **이전에 받은 적 없는 문제** 중에서 뽑습니다.
+같은 주에 다른 멤버가 이미 받은 문제는 되도록 피합니다.
+같은 (주차, 멤버) 조합은 언제 돌려도 같은 결과입니다(시드 난수).
 
 난이도는 출처가 달라도 3단계로 정규화됩니다 — Easy·Lv.1 / Medium·Lv.2~3 / Hard·Lv.4+.
 카드에는 원래 표기(`Medium`, `Lv.2`)가 그대로 보입니다.

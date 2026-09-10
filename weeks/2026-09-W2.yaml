@@ -1,0 +1,115 @@
+topic: hash
+topic-name: 해시 / 맵
+start: 2026-09-07
+end: 2026-09-13
+suggestions:
+  - id: programmers-42576
+    source: programmers
+    title: 완주하지 못한 선수
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42576
+    difficulty: 1
+    label: Lv.1
+  - id: leetcode-290
+    source: leetcode
+    title: 290. Word Pattern
+    url: https://leetcode.com/problems/word-pattern/
+    difficulty: 1
+    label: Easy
+  - id: programmers-42579
+    source: programmers
+    title: 베스트앨범
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42579
+    difficulty: 2
+    label: Lv.3
+  - id: leetcode-146
+    source: leetcode
+    title: 146. LRU Cache
+    url: https://leetcode.com/problems/lru-cache/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-30
+    source: leetcode
+    title: 30. Substring with Concatenation of All Words
+    url: https://leetcode.com/problems/substring-with-concatenation-of-all-words/
+    difficulty: 3
+    label: Hard
+  - id: programmers-1845
+    source: programmers
+    title: 폰켓몬
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/1845
+    difficulty: 1
+    label: Lv.1
+  - id: leetcode-242
+    source: leetcode
+    title: 242. Valid Anagram
+    url: https://leetcode.com/problems/valid-anagram/
+    difficulty: 1
+    label: Easy
+  - id: programmers-42577
+    source: programmers
+    title: 전화번호 목록
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42577
+    difficulty: 2
+    label: Lv.2
+  - id: leetcode-740
+    source: leetcode
+    title: 740. Delete and Earn
+    url: https://leetcode.com/problems/delete-and-earn/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-149
+    source: leetcode
+    title: 149. Max Points on a Line
+    url: https://leetcode.com/problems/max-points-on-a-line/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-383
+    source: leetcode
+    title: 383. Ransom Note
+    url: https://leetcode.com/problems/ransom-note/
+    difficulty: 1
+    label: Easy
+  - id: programmers-42578
+    source: programmers
+    title: 의상
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42578
+    difficulty: 2
+    label: Lv.2
+problems:
+  - id: leetcode-790
+    source: leetcode
+    title: 790. Domino and Tromino Tiling
+    url: https://leetcode.com/problems/domino-and-tromino-tiling/
+    difficulty: 2
+    label: Medium
+  - id: programmers-12922
+    source: programmers
+    title: 수박수박수박수박수박수?
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/12922
+    difficulty: 1
+    label: Lv.1
+  - id: programmers-1844
+    source: programmers
+    title: 게임 맵 최단거리
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/1844
+    difficulty: 2
+    label: Lv.2
+  - id: programmers-42888
+    source: programmers
+    title: 오픈채팅방
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42888
+    difficulty: 2
+    label: Lv.2
+assignments:
+  jihoon-devstu:
+    picked: []
+    random: programmers-42888
+  myh7754:
+    picked: []
+    random: leetcode-790
+  perish95:
+    picked: []
+    random: programmers-1844
+  sjungwon03:
+    picked: []
+    random: programmers-12922

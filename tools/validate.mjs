@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { parse } from "yaml";
 import { TOPIC_BY_SLUG } from "./topics.mjs";
-import { WEEK_ID, MAX_PICKS, isoWeekDates } from "./weeks.mjs";
+import { WEEK_ID, MAX_PICKS, weekDates, weeksInMonth, weekLabel, PROGRAMMERS_LEVELS, LEETCODE_LEVELS } from "./weeks.mjs";
 import { parseProblemUrl, LinkError } from "./problem-link.mjs";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
@@ -56,9 +56,11 @@ function requireSafeBody(body, label) {
 
 function validateWeek(id, value, label, members) {
   const match = WEEK_ID.exec(id);
-  requireValue(match, `${label}: 파일명은 YYYY-Www 형식이어야 합니다. (예: 2026-W40.yaml)`);
-  const [year, week] = [Number(match[1]), Number(match[2])];
-  requireValue(week >= 1 && week <= 53, `${label}: 주차는 1~53 사이여야 합니다.`);
+  requireValue(match, `${label}: 파일명은 YYYY-MM-Wn 형식이어야 합니다. (예: 2026-10-W1.yaml)`);
+  const [year, month, week] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  requireValue(month >= 1 && month <= 12, `${label}: 월은 1~12 사이여야 합니다.`);
+  const limit = weeksInMonth(year, month);
+  requireValue(week >= 1 && week <= limit, `${label}: ${year}년 ${month}월은 ${limit}주까지입니다.`);
   requireValue(value && typeof value === "object", `${label}: 내용이 비어 있습니다.`);
 
   const topic = TOPIC_BY_SLUG.get(value.topic);
@@ -68,11 +70,11 @@ function validateWeek(id, value, label, members) {
     `${label}: topic-name이 topic과 다릅니다. (${topic.name})`,
   );
 
-  const dates = isoWeekDates(year, week);
+  const dates = weekDates(year, month, week);
   requireValue(DATE.test(value.start) && DATE.test(value.end), `${label}: start와 end는 YYYY-MM-DD여야 합니다.`);
   requireValue(
     value.start === dates.start && value.end === dates.end,
-    `${label}: 날짜가 ISO 주차와 다릅니다. (${dates.start} ~ ${dates.end})`,
+    `${label}: 날짜가 ${weekLabel({ year, month, week })}와 다릅니다. (${dates.start} ~ ${dates.end})`,
   );
 
   const problemEntry = (problem, at, catalog) => {
@@ -178,7 +180,31 @@ export async function validateBoard(root) {
     requireValue(GITHUB_ID.test(login), `${label}: 파일명은 소문자 GitHub ID여야 합니다.`);
     const file = path.join(membersRoot, entry.name);
     await validateFile(file, label);
-    const { body } = splitDocument(await readFile(file, "utf8"), label);
+    const { frontmatter, body } = splitDocument(await readFile(file, "utf8"), label);
+
+    if (frontmatter) {
+      for (const key of Object.keys(frontmatter)) {
+        requireValue(key === "levels", `${label}: frontmatter에는 levels만 쓸 수 있습니다: ${key}`);
+      }
+      const levels = frontmatter.levels ?? {};
+      requireValue(
+        levels && typeof levels === "object" && !Array.isArray(levels),
+        `${label}: levels는 programmers와 leetcode를 가진 객체여야 합니다.`,
+      );
+      for (const key of Object.keys(levels)) {
+        requireValue(key === "programmers" || key === "leetcode",
+          `${label}: levels에는 programmers와 leetcode만 쓸 수 있습니다: ${key}`);
+      }
+      for (const [key, allowed] of [["programmers", PROGRAMMERS_LEVELS], ["leetcode", LEETCODE_LEVELS]]) {
+        if (levels[key] === undefined) continue;
+        requireValue(Array.isArray(levels[key]) && levels[key].length > 0,
+          `${label}: levels.${key} 는 비어 있지 않은 배열이어야 합니다.`);
+        for (const level of levels[key]) {
+          requireValue(allowed.includes(level),
+            `${label}: levels.${key} 값이 올바르지 않습니다: ${level} (${allowed.join(", ")})`);
+        }
+      }
+    }
     requireValue(/^#\s+\S/.test(body.split("\n")[0].trim()), `${label}: 첫 줄은 표시할 이름 제목이어야 합니다.`);
     requireSafeBody(body, label);
     members.add(login);

@@ -3,6 +3,22 @@ const esc = (value) => String(value ?? "").replace(/[&<>"']/g,
   (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
 
 const SOURCE_LABEL = { leetcode: "LeetCode", programmers: "프로그래머스" };
+
+const avatarHtml = (member, size) => `
+  <span class="avatar" style="--size:${size}px">
+    <span class="initial">${esc(member.initial)}</span>
+    <img src="${esc(member.avatar)}" alt="" loading="lazy" onerror="this.remove()">
+  </span>`;
+
+// 문제가 그 멤버가 원하는 난이도인지 (members/*.md 의 levels)
+function matchesLevels(problem, levels) {
+  if (!levels) return true;
+  if (problem.source === "programmers") {
+    const level = Number(/^Lv\.(\d)$/.exec(problem.label)?.[1]);
+    return Number.isNaN(level) ? true : levels.programmers.includes(level);
+  }
+  return levels.leetcode.includes(problem.label);
+}
 const filters = { week: CURRENT ? "current" : "all", diff: "all", who: "all" };
 const lanes = document.getElementById("lanes");
 
@@ -17,7 +33,7 @@ function cardHtml(card) {
       </div>
       <span class="title">${esc(card.title)}</span>
       <div class="meta">
-        <span>${showWeek ? `${card.year} ${card.week}주차 · ${esc(card.topic)}` : ""}</span>
+        <span>${showWeek ? `${esc(card.weekLabel)} · ${esc(card.topic)}` : ""}</span>
         ${card.language ? `<span class="owner">${esc(card.language)}</span>` : ""}
       </div>
     </a>`;
@@ -31,6 +47,7 @@ function laneHtml(member, cards) {
   return `
     <section class="lane">
       <div class="lane-head">
+        ${avatarHtml(member, 24)}
         <a class="lane-name" href="${member.page}">${esc(member.name)}</a>
         <span class="hint">@${esc(member.login)}</span>
         <span class="lane-progress">
@@ -53,6 +70,26 @@ function laneHtml(member, cards) {
     </section>`;
 }
 
+function renderSuggestions() {
+  const list = document.getElementById("suggestList");
+  if (!list) return;
+  const member = MEMBERS.find((candidate) => candidate.login === filters.who);
+  const shown = member ? SUGGESTIONS.filter((problem) => matchesLevels(problem, member.levels)) : SUGGESTIONS;
+
+  document.getElementById("suggestNote").textContent = member
+    ? `· ${TOPIC_NAME} · ${member.name} 님의 선호 난이도에 맞춘 ${shown.length}개`
+    : `· ${TOPIC_NAME} · 여기서 골라도 되고 다른 문제를 골라도 됩니다`;
+
+  list.innerHTML = shown.length
+    ? shown.map((problem) => `
+      <li>
+        <span class="tag src-${problem.source}">${SOURCE_LABEL[problem.source]}</span>
+        <span class="tag d${problem.difficulty}">${esc(problem.label)}</span>
+        <a href="${esc(problem.url)}" target="_blank" rel="noopener">${esc(problem.title)}</a>
+      </li>`).join("")
+    : '<li class="empty">선호 난이도에 맞는 추천 문제가 없습니다. 멤버 파일의 levels 를 넓혀보세요.</li>';
+}
+
 function apply() {
   const visible = CARDS.filter((card) => {
     if (filters.week === "current" && card.weekId !== CURRENT) return false;
@@ -61,6 +98,7 @@ function apply() {
     return true;
   });
 
+  renderSuggestions();
   const shown = MEMBERS.filter((member) => filters.who === "all" || member.login === filters.who);
   lanes.innerHTML = shown.length
     ? shown.map((member) => laneHtml(member, visible.filter((card) => card.login === member.login))).join("")
