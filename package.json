@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node --test tools/validate.test.mjs tools/weeks.test.mjs",
     "validate": "node tools/validate.mjs",
+    "check": "node tools/assign.mjs && node tools/validate.mjs",
     "collect": "node tools/collect.mjs",
     "week": "node tools/generate-week.mjs",
     "assign": "node tools/assign.mjs",

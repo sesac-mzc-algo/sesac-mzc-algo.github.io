@@ -42,6 +42,24 @@ assignments:
       - leetcode-1
     random: leetcode-643
 `;
+// picks 를 아직 등록하지 않은 상태 — 랜덤 1개만 배정되어 있다
+const WEEK_UNREGISTERED = `topic: hash
+topic-name: 해시 / 맵
+start: 2026-09-07
+end: 2026-09-13
+suggestions: []
+problems:
+  - id: leetcode-643
+    source: leetcode
+    title: 643. Maximum Average Subarray I
+    url: https://leetcode.com/problems/maximum-average-subarray-i/
+    difficulty: 1
+    label: Easy
+assignments:
+  jiwon:
+    picked: []
+    random: leetcode-643
+`;
 const PICKS = `- https://leetcode.com/problems/two-sum/
 - https://school.programmers.co.kr/learn/courses/30/lessons/1845
 `;
@@ -245,6 +263,23 @@ test("done 인데 코드 블록이 없으면 거부한다", async () => {
     write("solutions", "2026-09-W2", "jiwon", "programmers-1845.md")("---\nstatus: done\n---\n\n집합 크기와 N/2 중 작은 값.\n"),
     /풀이 코드 블록이 필요합니다/,
   );
+});
+
+test("picks 는 냈지만 아직 등록되지 않았으면 그렇게 알려준다", async () => {
+  // picks 에 링크는 있는데 주차 파일에는 반영 전 — assign 을 돌리라고 안내해야 한다
+  await rejects(async (root) => {
+    await writeFile(path.join(root, "weeks", "2026-09-W2.yaml"), WEEK_UNREGISTERED);
+    await writeFile(path.join(root, "picks", "2026-09-W2", "jiwon.yaml"),
+      "- https://leetcode.com/problems/lru-cache/\n");
+    await writeFile(path.join(root, "solutions", "2026-09-W2", "jiwon", "programmers-1845.md"), SOLUTION);
+  }, /링크가 아직 등록되지 않았습니다/);
+});
+
+test("picks 가 모두 등록된 뒤 엉뚱한 문제를 올리면 picks 를 안내한다", async () => {
+  await rejects(async (root) => {
+    // 낸 링크 수(2) 만큼 이미 등록된 상태
+    await writeFile(path.join(root, "solutions", "2026-09-W2", "jiwon", "leetcode-9999.md"), SOLUTION);
+  }, /링크를 먼저 넣으세요/);
 });
 
 test("할당받지 않은 문제의 풀이를 거부한다", async () => {

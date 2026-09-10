@@ -135,15 +135,20 @@ function validateWeek(id, value, label, members) {
 
 // ---------- solutions ----------
 
-function validateSolution(source, label, { week, login, problemId, members }) {
+function validateSolution(source, label, { week, login, problemId, members, pickCount }) {
   requireValue(week, `${label}: weeks/${label.split("/")[1]}.yaml 이 없습니다.`);
   requireValue(members.has(login), `${label}: members/${login}.md 를 먼저 추가해야 합니다.`);
   const assignment = week.assignments?.[login];
   requireValue(assignment, `${label}: ${week.id} 주차에 @${login} 의 할당이 없습니다.`);
   const mine = [...(assignment.picked ?? []), assignment.random];
+  // 낸 picks 보다 등록된 문제가 적으면, 아직 링크가 반영되지 않은 것이다.
+  const unregistered = pickCount > (assignment.picked?.length ?? 0);
+  const hint = unregistered
+    ? `picks/${week.id}/${login}.yaml 의 링크가 아직 등록되지 않았습니다. npm run check 로 등록한 뒤 검증하세요.`
+    : `직접 고른 문제라면 picks/${week.id}/${login}.yaml 에 링크를 먼저 넣으세요.`;
   requireValue(
     mine.includes(problemId),
-    `${label}: @${login} 에게 할당된 문제가 아닙니다. (${mine.join(", ")})`,
+    `${label}: @${login} 에게 할당된 문제가 아닙니다. (${mine.join(", ")})\n  ${hint}`,
   );
 
   const { frontmatter, body } = splitDocument(source, label);
@@ -223,6 +228,7 @@ export async function validateBoard(root) {
   }
 
   const picksRoot = path.join(root, "picks");
+  const pickCounts = new Map();                     // 주차 -> GitHub ID -> 낸 링크 수
   for (const weekEntry of await readdir(picksRoot, { withFileTypes: true }).catch(() => [])) {
     if (weekEntry.name === ".gitkeep") continue;
     requireValue(weekEntry.isDirectory(), `picks/${weekEntry.name}: 주차 디렉터리여야 합니다.`);
@@ -235,12 +241,14 @@ export async function validateBoard(root) {
       const login = entry.name.slice(0, -5);
       requireValue(GITHUB_ID.test(login), `${label}: 파일명은 소문자 GitHub ID여야 합니다.`);
       requireValue(members.has(login), `${label}: members/${login}.md 를 먼저 추가해야 합니다.`);
+      if (!pickCounts.has(weekEntry.name)) pickCounts.set(weekEntry.name, new Map());
 
       const file = path.join(picksRoot, weekEntry.name, entry.name);
       await validateFile(file, label);
       const urls = parse(await readFile(file, "utf8"));
       requireValue(Array.isArray(urls) && urls.length > 0, `${label}: 문제 링크 목록이어야 합니다.`);
       requireValue(urls.length <= MAX_PICKS, `${label}: 링크는 ${MAX_PICKS}개까지입니다.`);
+      pickCounts.get(weekEntry.name).set(login, urls.length);
       const seen = new Set();
       for (const url of urls) {
         try {
@@ -277,6 +285,7 @@ export async function validateBoard(root) {
         await validateFile(file, label);
         validateSolution(await readFile(file, "utf8"), label, {
           week: weeks.get(weekEntry.name), login: memberEntry.name, problemId, members,
+          pickCount: pickCounts.get(weekEntry.name)?.get(memberEntry.name) ?? 0,
         });
       }
     }
