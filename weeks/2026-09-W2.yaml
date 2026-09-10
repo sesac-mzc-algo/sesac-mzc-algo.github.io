@@ -76,6 +76,12 @@ suggestions:
     difficulty: 2
     label: Lv.2
 problems:
+  - id: leetcode-146
+    source: leetcode
+    title: 146. LRU Cache
+    url: https://leetcode.com/problems/lru-cache/
+    difficulty: 2
+    label: Medium
   - id: leetcode-790
     source: leetcode
     title: 790. Domino and Tromino Tiling
@@ -92,6 +98,12 @@ problems:
     source: programmers
     title: 게임 맵 최단거리
     url: https://school.programmers.co.kr/learn/courses/30/lessons/1844
+    difficulty: 2
+    label: Lv.2
+  - id: programmers-42577
+    source: programmers
+    title: 전화번호 목록
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42577
     difficulty: 2
     label: Lv.2
   - id: programmers-42888
@@ -111,5 +123,7 @@ assignments:
     picked: []
     random: programmers-1844
   sjungwon03:
-    picked: []
+    picked:
+      - leetcode-146
+      - programmers-42577
     random: programmers-12922
