@@ -2,12 +2,12 @@
 // 1) picks/<주차>/<github-id>.yaml 의 링크를 파싱해 주차 파일에 문제로 등록하고
 // 2) 아직 랜덤 문제를 못 받은 멤버에게 자동 배정한다.
 // 이미 끝난 주차와 이미 배정된 멤버는 건드리지 않는다.
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { access, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { parse, stringify } from "yaml";
 import {
-  ROOT, WEEK_ID, MAX_PICKS, currentWeek, readProblems, readWeeks, readMembers,
-  assignMembers, assignedTo, problemMetadata, syncCatalog,
+  ROOT, WEEK_ID, MAX_PICKS, currentWeek, weekLabel, readProblems, readWeeks, readMembers,
+  assignMembers, assignedTo, buildWeek, problemMetadata, syncCatalog,
 } from "./weeks.mjs";
 import { parseProblemUrl, resolveProblem, LinkError } from "./problem-link.mjs";
 
@@ -28,19 +28,36 @@ export async function readPicks(root = ROOT) {
   return picks;
 }
 
+// picks 가 이번 주차보다 먼저 올라와도 막히지 않도록, 없으면 주차부터 만든다.
+async function ensureCurrentWeek(problems, members) {
+  const now = currentWeek();
+  const file = path.join(ROOT, "weeks", `${now.id}.yaml`);
+  if (await access(file).then(() => true, () => false)) return false;
+
+  const value = buildWeek({
+    problems, weeks: await readWeeks(), members,
+    year: now.year, month: now.month, week: now.week,
+  });
+  delete value.id;
+  await writeFile(file, stringify(value, { lineWidth: 0 }));
+  console.log(`assign: weeks/${now.id}.yaml 생성 — ${weekLabel(now)} · ${value["topic-name"]}`);
+  return true;
+}
+
 async function main() {
-  const [problems, weeks, members, picks] = await Promise.all([
-    readProblems(), readWeeks(), readMembers(), readPicks(),
-  ]);
+  const [problems, members] = await Promise.all([readProblems(), readMembers()]);
   const logins = members.map((member) => member.login);
   if (members.length === 0) {
     console.log("assign: 등록된 멤버가 없습니다.");
     return;
   }
 
+  const created = await ensureCurrentWeek(problems, members);
+  const [weeks, picks] = await Promise.all([readWeeks(), readPicks()]);
+
   const known = new Map(problems.map((problem) => [problem.id, problem]));
   const today = currentWeek().start;
-  let changed = 0;
+  let changed = created ? 1 : 0;
 
   for (const week of weeks) {
     if (week.end < today) continue;                       // 지나간 주차는 그대로 둔다

@@ -4,7 +4,7 @@
   "type": "module",
   "description": "주차별 알고리즘 코딩테스트 스터디 보드 — 풀이는 Markdown, 배포는 GitHub Pages",
   "scripts": {
-    "test": "node --test tools/validate.test.mjs",
+    "test": "node --test tools/validate.test.mjs tools/weeks.test.mjs",
     "validate": "node tools/validate.mjs",
     "collect": "node tools/collect.mjs",
     "week": "node tools/generate-week.mjs",
