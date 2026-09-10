@@ -121,8 +121,6 @@ function boardPage({ weeks, members, solutions, current }) {
     }
   }
 
-  const done = (login) => cards.filter((c) => c.login === login && c.status === "done").length;
-  const total = (login) => cards.filter((c) => c.login === login).length;
   const currentWeek = weeks.find((w) => w.year === current.year && w.week === current.week) ?? weeks[0] ?? null;
 
   const body = `
@@ -145,30 +143,20 @@ function boardPage({ weeks, members, solutions, current }) {
     <option value="all">전체</option>
     ${members.map((m) => `<option value="${m.login}">${esc(m.name)}</option>`).join("")}
   </select>
-  <a class="hint" href="${REPO}/blob/main/README.md#풀이-올리기">풀이는 Pull Request로 올립니다 ↗</a>
+  <a class="hint" href="${REPO}/blob/main/README.md#2-풀이-올리기">풀이는 Pull Request로 올립니다 ↗</a>
 </div>
 
 <main>
-  ${members.length === 0 ? '<div class="panel"><b>아직 멤버가 없습니다.</b> <span class="hint">members/&lt;github-id&gt;.md 를 추가하는 PR을 열어주세요.</span></div>' : `
-  <div class="panel">
-    <h3>진행 현황</h3>
-    <div class="rank">
-      ${members.map((m) => `<a href="${link(`/m/${m.login}.html`)}">${esc(m.name)} <b>${done(m.login)}</b>/${total(m.login)}</a>`).join("")}
-    </div>
-  </div>`}
-  <div class="columns">
-    ${STATUSES.map(([status, label]) => `
-      <section class="col" data-status="${status}">
-        <h2><span class="dot ${status}"></span>${label}<span class="count" data-count="${status}">0</span></h2>
-        <div class="col-body"></div>
-        <div class="empty" hidden>카드가 없습니다.</div>
-      </section>`).join("")}
-  </div>
+  ${members.length === 0
+    ? '<div class="panel"><b>아직 멤버가 없습니다.</b> <span class="hint">members/&lt;github-id&gt;.md 를 추가하는 PR을 열어주세요.</span></div>'
+    : '<div id="lanes"></div>'}
 </main>`;
 
   const script = `<script>
 const CARDS = ${JSON.stringify(cards)};
+const MEMBERS = ${JSON.stringify(members.map(({ login, name }) => ({ login, name, page: link(`/m/${login}.html`) })))};
 const CURRENT = ${JSON.stringify(currentWeek?.id ?? null)};
+const STATUSES = ${JSON.stringify(STATUSES)};
 </script>
 <script src="${link("/app.js")}"></script>`;
 

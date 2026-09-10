@@ -204,3 +204,33 @@ main.doc { max-width: 860px; margin: 0 auto; padding: 26px 20px 80px; }
 .member-table td { border-bottom: 1px solid var(--line); padding: 9px 10px; }
 .member-table a { text-decoration: none; }
 .member-table a:hover { text-decoration: underline; }
+
+/* ---------- 멤버별 칸반 ---------- */
+.lane { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  margin-bottom: 14px; overflow: hidden; }
+.lane-head { display: flex; align-items: center; gap: 9px; padding: 11px 14px;
+  border-bottom: 1px solid var(--line); background: var(--panel); }
+.lane-name { font-weight: 600; font-size: 14px; text-decoration: none; color: var(--text); }
+.lane-name:hover { color: var(--accent); }
+.lane-progress { margin-left: auto; display: flex; align-items: center; gap: 9px;
+  font-size: 12.5px; color: var(--muted); }
+.lane-progress b { color: var(--accent); }
+.lane-progress .bar { width: 96px; height: 5px; border-radius: 3px; background: var(--line);
+  overflow: hidden; display: block; }
+.lane-progress .bar > span { display: block; height: 100%; background: var(--done); }
+
+.lane-columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.lane-columns .col { border: none; border-right: 1px solid var(--line); border-radius: 0;
+  background: var(--bg); padding: 11px 12px 13px; min-height: 92px; }
+.lane-columns .col:last-child { border-right: none; }
+.lane-columns .col h3 { display: flex; align-items: center; gap: 7px; margin: 0 0 10px;
+  font-size: 12px; font-weight: 600; color: var(--muted); }
+.lane-columns .col h3 .count { margin-left: auto; font-weight: 400; }
+.lane-columns .card { background: var(--panel); }
+.lane-columns .empty { margin: 0; padding: 2px 0; font-size: 12px; }
+
+@media (max-width: 860px) {
+  .lane-columns { grid-template-columns: 1fr; }
+  .lane-columns .col { border-right: none; border-bottom: 1px solid var(--line); }
+  .lane-columns .col:last-child { border-bottom: none; }
+}
