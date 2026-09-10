@@ -199,5 +199,6 @@ main에 머지되면 워크플로가 알아서 등록합니다. `git checkout we
 문제를 추가하려면 `{ "id": 레슨번호, "topic": "주제slug", "level": 1~5 }` 를 넣고
 `npm run collect` 를 돌립니다. (직접 고른 링크는 이 목록에 없어도 등록됩니다.)
 
-레포 설정은 **Settings → Pages → Source** 가 `GitHub Actions`,
-**Settings → Actions → General → Workflow permissions** 가 `Read and write` 여야 합니다.
+레포 설정은 **Settings → Pages → Source** 가 `GitHub Actions` 여야 합니다.
+커밋을 푸시하는 워크플로는 각자 `permissions: contents: write` 를 선언하므로
+레포/조직의 기본 워크플로 권한이 `Read` 여도 동작합니다.
