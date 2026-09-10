@@ -1,0 +1,12 @@
+{
+  "name": "code-study",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "주차별 알고리즘 코딩테스트 스터디 보드 (의존성 없음, Node 22.5+ 내장 SQLite 사용)",
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node server.js",
+    "collect": "node scripts/collect.js"
+  }
+}
