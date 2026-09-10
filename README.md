@@ -87,8 +87,19 @@ LeetCode와 프로그래머스를 지원하고, `?envType=...` 같은 쿼리가 
 
 ```
 solutions/<년-월-주차>/<github-id>/<문제-id>.md
-예: solutions/2026-09-W2/sjungwon03/programmers-1845.md
+예: solutions/2026-09-W2/sjungwon03/leetcode-1.md
+    solutions/2026-09-W2/sjungwon03/programmers-1845.md
 ```
+
+**문제 id** 는 출처마다 숫자를 가져오는 곳이 다릅니다.
+
+| 출처 | 파일명 | 숫자를 어디서 보나 |
+| --- | --- | --- |
+| LeetCode | `leetcode-<문제번호>.md` | **URL에는 번호가 없습니다.** 문제 제목 앞 숫자를 씁니다 — `1. Two Sum` → `leetcode-1` |
+| 프로그래머스 | `programmers-<레슨번호>.md` | URL 끝 숫자 — `.../lessons/1845` → `programmers-1845` |
+
+헷갈리면 `weeks/<년-월-주차>.yaml` 의 `id` 를 그대로 복사하는 게 확실합니다.
+보드에서 문제 카드를 눌러도 페이지 아래에 경로가 적혀 있습니다.
 
 ~~~md
 ---
@@ -114,6 +125,8 @@ def solution(nums):
 
 헤맨 지점, 놓친 반례, 리뷰에서 배운 점. 없으면 생략합니다.
 ~~~
+
+LeetCode 는 `class Solution` 안에 메서드를 쓰는 형태라 코드 블록만 그 형식에 맞추면 됩니다.
 
 아직 푸는 중이라면 `status: doing` 으로 접근만 적어 올려도 됩니다.
 `status: done` 은 풀이 코드 블록이 있어야 통과합니다.
