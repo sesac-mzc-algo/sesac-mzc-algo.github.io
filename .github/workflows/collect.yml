@@ -1,0 +1,39 @@
+name: collect
+
+on:
+  schedule:
+    # 매월 1일 03:00 UTC — 문제 풀 갱신
+    - cron: "0 3 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run collect
+
+      - run: npm run validate
+
+      - name: Commit
+        run: |
+          if git diff --quiet -- data/problems.json; then
+            echo "문제 풀에 변경이 없습니다."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/problems.json
+          git commit -m "chore: 문제 풀 갱신 ($(node -p "require('./data/problems.json').length")개)"
+          git push

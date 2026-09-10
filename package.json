@@ -1,12 +1,20 @@
 {
-  "name": "code-study",
-  "version": "1.0.0",
+  "name": "code-study-board",
   "private": true,
   "type": "module",
-  "description": "주차별 알고리즘 코딩테스트 스터디 보드 (의존성 없음, Node 22.5+ 내장 SQLite 사용)",
-  "engines": { "node": ">=22.5" },
+  "description": "주차별 알고리즘 코딩테스트 스터디 보드 — 풀이는 Markdown, 배포는 GitHub Pages",
   "scripts": {
-    "start": "node server.js",
-    "collect": "node scripts/collect.js"
+    "test": "node --test tools/validate.test.mjs",
+    "validate": "node tools/validate.mjs",
+    "collect": "node tools/collect.mjs",
+    "week": "node tools/generate-week.mjs",
+    "build": "node tools/build.mjs",
+    "serve": "node tools/build.mjs && node --run serve:only",
+    "serve:only": "node -e \"const h=require('node:http'),f=require('node:fs'),p=require('node:path');h.createServer((q,s)=>{let u=q.url.split('?')[0];if(u.endsWith('/'))u+='index.html';const t=p.join('dist',u);if(!f.existsSync(t))return s.writeHead(404).end('404');s.writeHead(200,{'Content-Type':{'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript'}[p.extname(t)]??'text/plain'});f.createReadStream(t).pipe(s)}).listen(3000,()=>console.log('http://localhost:3000'))\""
+  },
+  "devDependencies": {
+    "micromark": "^4.0.2",
+    "micromark-extension-gfm": "^3.0.0",
+    "yaml": "^2.9.0"
   }
 }

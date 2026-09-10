@@ -1,0 +1,47 @@
+name: weekly
+
+on:
+  schedule:
+    # 매주 월요일 00:10 KST (일요일 15:10 UTC)
+    - cron: "10 15 * * 0"
+  workflow_dispatch:
+    inputs:
+      week:
+        description: "주차 (예: 2026-W40). 비우면 이번 주"
+        required: false
+      topic:
+        description: "알고리즘 slug (예: greedy). 비우면 커리큘럼 순서대로"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generate week
+        run: node tools/generate-week.mjs "${{ inputs.week }}" "${{ inputs.topic }}"
+
+      - run: npm run validate
+
+      - name: Commit
+        run: |
+          if git diff --quiet -- weeks; then
+            echo "새로 만든 주차가 없습니다."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add weeks
+          git commit -m "chore: $(git diff --cached --name-only -- weeks | xargs -n1 basename | sed 's/\.yaml$//' | paste -sd, -) 주차 문제 선정"
+          git push

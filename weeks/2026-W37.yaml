@@ -1,0 +1,26 @@
+topic: hash
+topic-name: 해시 / 맵
+start: 2026-09-07
+end: 2026-09-13
+problems:
+  - id: programmers-1845
+    source: programmers
+    title: 폰켓몬
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/1845
+    difficulty: 1
+    label: Lv.1
+    kind: topic
+  - id: leetcode-3
+    source: leetcode
+    title: 3. Longest Substring Without Repeating Characters
+    url: https://leetcode.com/problems/longest-substring-without-repeating-characters/
+    difficulty: 2
+    label: Medium
+    kind: topic
+  - id: leetcode-643
+    source: leetcode
+    title: 643. Maximum Average Subarray I
+    url: https://leetcode.com/problems/maximum-average-subarray-i/
+    difficulty: 1
+    label: Easy
+    kind: random
