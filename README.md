@@ -60,7 +60,8 @@ levels:
 ### 1. 문제 2개 고르기
 
 보드의 **이번 주 추천 문제** 에서 골라도 되고, 다른 문제를 가져와도 됩니다.
-`picks/<주차>/<github-id>.yaml` 에 **링크만** 넣습니다.
+`picks/<년-월-주차>/<github-id>.yaml` 에 **링크만** 넣습니다.
+디렉터리 이름은 주차 id 그대로입니다 — 이번 주는 `2026-09-W2`.
 
 ```yaml
 # picks/2026-09-W2/sjungwon03.yaml
@@ -85,7 +86,7 @@ LeetCode와 프로그래머스를 지원하고, `?envType=...` 같은 쿼리가 
 푼 문제마다 파일을 하나 만듭니다. **자기에게 할당된 문제만** 올릴 수 있습니다.
 
 ```
-solutions/<주차>/<github-id>/<문제-id>.md
+solutions/<년-월-주차>/<github-id>/<문제-id>.md
 예: solutions/2026-09-W2/sjungwon03/programmers-1845.md
 ```
 

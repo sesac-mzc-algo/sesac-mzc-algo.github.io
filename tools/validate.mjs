@@ -56,7 +56,7 @@ function requireSafeBody(body, label) {
 
 function validateWeek(id, value, label, members) {
   const match = WEEK_ID.exec(id);
-  requireValue(match, `${label}: 파일명은 YYYY-MM-Wn 형식이어야 합니다. (예: 2026-10-W1.yaml)`);
+  requireValue(match, `${label}: 파일명은 년-월-주차 형식이어야 합니다. (예: 2026-10-W1.yaml)`);
   const [year, month, week] = [Number(match[1]), Number(match[2]), Number(match[3])];
   requireValue(month >= 1 && month <= 12, `${label}: 월은 1~12 사이여야 합니다.`);
   const limit = weeksInMonth(year, month);
@@ -226,7 +226,7 @@ export async function validateBoard(root) {
   for (const weekEntry of await readdir(picksRoot, { withFileTypes: true }).catch(() => [])) {
     if (weekEntry.name === ".gitkeep") continue;
     requireValue(weekEntry.isDirectory(), `picks/${weekEntry.name}: 주차 디렉터리여야 합니다.`);
-    requireValue(WEEK_ID.test(weekEntry.name), `picks/${weekEntry.name}: YYYY-Www 형식이어야 합니다.`);
+    requireValue(WEEK_ID.test(weekEntry.name), `picks/${weekEntry.name}: 년-월-주차 형식이어야 합니다. (예: 2026-10-W1)`);
     requireValue(weeks.has(weekEntry.name), `picks/${weekEntry.name}: weeks/${weekEntry.name}.yaml 이 없습니다.`);
 
     for (const entry of await readdir(path.join(picksRoot, weekEntry.name), { withFileTypes: true })) {
@@ -260,7 +260,7 @@ export async function validateBoard(root) {
   for (const weekEntry of await readdir(solutionsRoot, { withFileTypes: true }).catch(() => [])) {
     if (weekEntry.name === ".gitkeep") continue;
     requireValue(weekEntry.isDirectory(), `solutions/${weekEntry.name}: 주차 디렉터리여야 합니다.`);
-    requireValue(WEEK_ID.test(weekEntry.name), `solutions/${weekEntry.name}: YYYY-Www 형식이어야 합니다.`);
+    requireValue(WEEK_ID.test(weekEntry.name), `solutions/${weekEntry.name}: 년-월-주차 형식이어야 합니다. (예: 2026-10-W1)`);
 
     for (const memberEntry of await readdir(path.join(solutionsRoot, weekEntry.name), { withFileTypes: true })) {
       const memberLabel = `solutions/${weekEntry.name}/${memberEntry.name}`;

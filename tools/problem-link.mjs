@@ -1,5 +1,5 @@
 // 문제 링크를 파싱해서 실제 문제 정보를 가져온다.
-// 멤버가 picks/<주차>/<github-id>.yaml 에 URL 만 넣으면 여기서 제목·난이도·주제를 채운다.
+// 멤버가 picks/<년-월-주차>/<github-id>.yaml 에 URL 만 넣으면 여기서 제목·난이도·주제를 채운다.
 import { TOPICS } from "./topics.mjs";
 
 const UA = "Mozilla/5.0 (compatible; code-study-board/1.0)";

@@ -91,10 +91,10 @@ test("유효한 보드를 통과시킨다", async () => {
   await rm(root, { recursive: true, force: true });
 });
 
-test("주차 파일명이 YYYY-MM-Wn 이 아니면 거부한다", async () => {
+test("옛 ISO 주차 파일명을 거부한다", async () => {
   await rejects(async (root) => {
     await writeFile(path.join(root, "weeks", "2026-W37.yaml"), WEEK);
-  }, /YYYY-MM-Wn 형식/);
+  }, /년-월-주차 형식/);
 });
 
 test("그 달에 없는 주차를 거부한다", async () => {

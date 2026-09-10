@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 이번 주차 파일(weeks/YYYY-Www.yaml)이 없으면 만든다.
+// 이번 주차 파일(weeks/<년>-<월>-W<주>.yaml)이 없으면 만든다.
 //   node tools/generate-week.mjs                     이번 주
 //   node tools/generate-week.mjs 2026-10-W1          특정 주차
 //   node tools/generate-week.mjs 2026-10-W1 greedy   주제 지정

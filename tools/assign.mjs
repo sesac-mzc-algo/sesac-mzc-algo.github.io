@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 1) picks/<주차>/<github-id>.yaml 의 링크를 파싱해 주차 파일에 문제로 등록하고
+// 1) picks/<년-월-주차>/<github-id>.yaml 의 링크를 파싱해 주차 파일에 문제로 등록하고
 // 2) 아직 랜덤 문제를 못 받은 멤버에게 자동 배정한다.
 // 이미 끝난 주차와 이미 배정된 멤버는 건드리지 않는다.
 import { readdir, readFile, writeFile } from "node:fs/promises";
@@ -11,7 +11,7 @@ import {
 } from "./weeks.mjs";
 import { parseProblemUrl, resolveProblem, LinkError } from "./problem-link.mjs";
 
-// picks/<주차>/<github-id>.yaml -> { "2026-W37": { jiwon: ["https://..."] } }
+// picks/<년-월-주차>/<github-id>.yaml -> { "2026-09-W2": { sjungwon03: ["https://..."] } }
 export async function readPicks(root = ROOT) {
   const picksRoot = path.join(root, "picks");
   const picks = new Map();
