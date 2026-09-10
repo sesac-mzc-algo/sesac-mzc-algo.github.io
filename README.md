@@ -169,15 +169,17 @@ npm run validate   # 내가 쓴 파일 형식 검사
 
 ## 배포 설정
 
-처음 한 번만 하면 됩니다. **Organization은 필요 없고 개인 레포로 충분합니다.**
+이 레포는 organization 사이트(`sesac-mzc-algo.github.io`)라 **https://sesac-mzc-algo.github.io/** 루트로 배포됩니다.
 
-1. 레포를 **public** 으로 만듭니다.
-   (private 레포에 Pages를 붙이려면 유료 플랜이 필요합니다. 스터디 풀이를 공개하기 싫다면
-   private 레포 + 유료 플랜, 또는 아래 "다른 배포처" 를 보세요.)
-2. **Settings → Pages → Source** 를 `GitHub Actions` 로 바꿉니다.
-3. **Settings → Actions → General → Workflow permissions** 를
-   `Read and write permissions` 로 바꿉니다. `weekly` 와 `collect` 가 커밋을 푸시해야 합니다.
-4. main에 push하면 `deploy` 가 돌고, 몇 분 뒤 `https://<github-id>.github.io/<레포>/` 에서 열립니다.
+처음 한 번만 하면 됩니다.
+
+1. **Settings → Pages → Source** 를 `GitHub Actions` 로 바꿉니다.
+2. **Settings → Actions → General → Workflow permissions** 를
+   `Read and write permissions` 로 바꿉니다.
+   `weekly` · `assign` · `collect` 가 주차 파일과 문제 풀을 커밋해야 합니다.
+3. main에 push하면 `deploy` 가 돌고, 몇 분 뒤 사이트가 열립니다.
+
+레포가 public이라 Pages는 무료입니다. (private 레포에 Pages를 붙이려면 유료 플랜이 필요합니다.)
 
 ### 다른 배포처
 

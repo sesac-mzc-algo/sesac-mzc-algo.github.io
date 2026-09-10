@@ -39,5 +39,41 @@ suggestions:
     url: https://leetcode.com/problems/substring-with-concatenation-of-all-words/
     difficulty: 3
     label: Hard
-problems: []
-assignments: {}
+problems:
+  - id: leetcode-137
+    source: leetcode
+    title: 137. Single Number II
+    url: https://leetcode.com/problems/single-number-ii/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-14
+    source: leetcode
+    title: 14. Longest Common Prefix
+    url: https://leetcode.com/problems/longest-common-prefix/
+    difficulty: 1
+    label: Easy
+  - id: leetcode-290
+    source: leetcode
+    title: 290. Word Pattern
+    url: https://leetcode.com/problems/word-pattern/
+    difficulty: 1
+    label: Easy
+  - id: programmers-68935
+    source: programmers
+    title: 3진법 뒤집기
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/68935
+    difficulty: 1
+    label: Lv.1
+assignments:
+  jihoon-devstdu:
+    picked: []
+    random: programmers-68935
+  myh7754:
+    picked: []
+    random: leetcode-14
+  perish95:
+    picked: []
+    random: leetcode-137
+  sjungwon03:
+    picked: []
+    random: leetcode-290

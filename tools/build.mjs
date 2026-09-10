@@ -10,7 +10,7 @@ import { ROOT, MAX_PICKS, isoWeek, readWeeks } from "./weeks.mjs";
 import { splitDocument } from "./validate.mjs";
 
 const DIST = path.join(ROOT, "dist");
-const REPO = process.env.REPO_URL ?? "https://github.com/OWNER/REPO";
+const REPO = process.env.REPO_URL ?? "https://github.com/sesac-mzc-algo/sesac-mzc-algo.github.io";
 const BASE = process.env.BASE_PATH ?? "";        // Pages 하위 경로 (예: /code-study)
 
 const STATUSES = [["todo", "풀 문제"], ["doing", "푸는 중"], ["done", "푼 문제"]];
