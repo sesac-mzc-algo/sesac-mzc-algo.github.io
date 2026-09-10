@@ -151,12 +151,18 @@ gh pr create --repo sesac-mzc-algo/sesac-mzc-algo.github.io --fill
 `gh` 가 없으면 push 후 GitHub이 띄워주는 **Compare & pull request** 버튼을 누르면 됩니다.
 PR을 열면 형식 검사가 돌고, 머지되면 사이트가 자동으로 다시 배포됩니다.
 
+**문제 고르기와 풀이를 한 PR에 같이 올려도 됩니다.**
+PR 검사가 링크를 먼저 등록한 뒤 풀이를 확인하므로 두 번 나눠 올릴 필요가 없습니다.
+
 올리기 전에 형식을 미리 확인하려면:
 
 ```bash
-npm run validate   # 형식 검사
+npm run check      # 고른 링크를 등록한 뒤 형식 검사
 npm run serve      # 빌드 후 http://localhost:3000 에서 보기
 ```
+
+`npm run check` 는 `weeks/` 를 고칩니다. **`weeks/` 변경은 커밋하지 마세요** —
+main에 머지되면 워크플로가 알아서 등록합니다. `git checkout weeks/` 로 되돌리면 됩니다.
 
 ## 알아두면 좋은 것
 

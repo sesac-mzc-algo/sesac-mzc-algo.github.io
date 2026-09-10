@@ -25,6 +25,11 @@ jobs:
 
       - run: npm test
 
+      # picks 와 풀이를 한 PR에 같이 올릴 수 있도록, 검증 전에 링크를 등록한다.
+      # check 는 contents: read 라 커밋되지 않고 이 잡 안에서만 쓰인다.
+      - name: Register picks (검증용, 커밋하지 않음)
+        run: node tools/assign.mjs
+
       - run: npm run validate
 
       - run: npm run build
