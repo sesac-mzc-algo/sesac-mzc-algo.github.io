@@ -82,6 +82,18 @@ problems:
     url: https://leetcode.com/problems/lru-cache/
     difficulty: 2
     label: Medium
+  - id: leetcode-347
+    source: leetcode
+    title: 347. Top K Frequent Elements
+    url: https://leetcode.com/problems/top-k-frequent-elements/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-49
+    source: leetcode
+    title: 49. Group Anagrams
+    url: https://leetcode.com/problems/group-anagrams/
+    difficulty: 2
+    label: Medium
   - id: leetcode-790
     source: leetcode
     title: 790. Domino and Tromino Tiling
@@ -120,7 +132,9 @@ assignments:
     picked: []
     random: leetcode-790
   perish95:
-    picked: []
+    picked:
+      - leetcode-49
+      - leetcode-347
     random: programmers-1844
   sjungwon03:
     picked:
