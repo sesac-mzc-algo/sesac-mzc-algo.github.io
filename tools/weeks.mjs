@@ -7,6 +7,7 @@ import { TOPICS, TOPIC_BY_SLUG } from "./topics.mjs";
 
 export const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 export const WEEK_ID = /^(\d{4})-W(\d{2})$/;
+export const MAX_PICKS = 2;      // 멤버가 직접 고르는 문제 수
 
 export const weekId = (year, week) => `${year}-W${String(week).padStart(2, "0")}`;
 
@@ -78,57 +79,118 @@ const duplicates = (title, chosen) => chosen.some((picked) => {
   return a.length >= 5 && b.length >= 5 && (a.includes(b) || b.includes(a));
 });
 
-export function selectProblems(problems, weeks, topicSlug, seed) {
+// 이 주 주제에 맞는 추천 문제 — 멤버가 직접 고를 때 참고한다.
+export function suggestProblems(problems, topicSlug, seed, count = 6) {
   const random = seeded(seed);
-  const used = new Set(weeks.flatMap((week) => week.problems.map((problem) => problem.id)));
-  const fresh = problems.filter((problem) => !used.has(problem.id));
-  const pool = fresh.length >= 3 ? fresh : problems;            // 풀이 마르면 재사용 허용
-  const matching = pool.filter((problem) => problem.topics.includes(topicSlug));
+  const matching = problems.filter((problem) => problem.topics.includes(topicSlug));
   const chosen = [];
 
   const take = (candidates) => {
     const available = candidates.filter((problem) => !chosen.some((picked) => picked.id === problem.id));
     const deduped = available.filter((problem) => !duplicates(problem.title, chosen));
     const finalists = preferFeatured(deduped.length ? deduped : available);
-    if (finalists.length === 0) return null;
-    const picked = finalists[Math.floor(random() * finalists.length)];
-    chosen.push(picked);
-    return picked;
+    if (finalists.length === 0) return false;
+    chosen.push(finalists[Math.floor(random() * finalists.length)]);
+    return true;
   };
-  const byDifficulty = (list, ...levels) => {
-    for (const level of levels) {
-      const hit = list.filter((problem) => problem.difficulty === level);
-      if (hit.length) return hit;
-    }
-    return list;
-  };
+  const byDifficulty = (list, level) => list.filter((problem) => problem.difficulty === level);
 
   const programmers = matching.filter((problem) => problem.source === "programmers");
   const leetcode = matching.filter((problem) => problem.source === "leetcode");
 
-  take(byDifficulty(programmers.length ? programmers : matching, 1, 2, 3));   // 워밍업
-  take(byDifficulty(leetcode.length ? leetcode : matching, 2, 3, 1));         // 본 문제
-  while (chosen.length < 2 && matching.length) if (!take(matching)) break;
-  while (chosen.length < 2 && pool.length) if (!take(pool)) break;
-
-  const topicPicks = chosen.slice(0, 2).map((problem) => ({ ...problem, kind: "topic" }));
-  // 앞의 두 문제가 다 어려우면 랜덤 문제로 난이도를 맞춘다
-  const allHard = topicPicks.length === 2 && topicPicks.every((problem) => problem.difficulty === 3);
-  const extra = take(allHard ? byDifficulty(pool, 1, 2, 3) : pool);
-  return [...topicPicks, ...(extra ? [{ ...extra, kind: "random" }] : [])];
+  // 쉬운 것부터 어려운 것까지, 두 사이트를 섞어서 고른다
+  for (const list of [byDifficulty(programmers, 1), byDifficulty(leetcode, 1),
+                      byDifficulty(programmers, 2), byDifficulty(leetcode, 2),
+                      byDifficulty(programmers, 3), byDifficulty(leetcode, 3)]) {
+    if (chosen.length >= count) break;
+    if (list.length) take(list);
+  }
+  while (chosen.length < count && matching.length) if (!take(matching)) break;
+  return chosen.slice(0, count);
 }
 
-export function buildWeek({ problems, weeks, year, week, topicSlug }) {
+// 자동 배정되는 랜덤 1문제 — 주제와 무관하다.
+export function pickRandom(problems, seed, { excluded = new Set(), deprioritized = new Set() } = {}) {
+  const random = seeded(seed);
+  const fresh = problems.filter((problem) => !excluded.has(problem.id));
+  const pool = fresh.length ? fresh : problems;
+  const unseen = pool.filter((problem) => !deprioritized.has(problem.id));
+  const finalists = preferFeatured(unseen.length ? unseen : pool);
+  return finalists.length ? finalists[Math.floor(random() * finalists.length)] : null;
+}
+
+// 어떤 멤버가 지금까지 받았거나 직접 고른 문제 id
+export function assignedTo(weeks, login) {
+  const ids = new Set();
+  for (const week of weeks) {
+    const assignment = week.assignments?.[login];
+    if (!assignment) continue;
+    for (const id of assignment.picked ?? []) ids.add(id);
+    if (assignment.random) ids.add(assignment.random);
+  }
+  return ids;
+}
+
+export const problemMetadata = ({ id, source, title, url, difficulty, label }) =>
+  ({ id, source, title, url, difficulty, label });
+
+// 주차의 problems 목록을 실제 할당에 맞춰 다시 맞춘다 (참조되지 않는 문제는 버린다).
+export function syncCatalog(week, extra = []) {
+  const catalog = new Map([...(week.problems ?? []), ...extra].map((problem) => [problem.id, problemMetadata(problem)]));
+  const used = new Set();
+  for (const assignment of Object.values(week.assignments ?? {})) {
+    for (const id of assignment.picked ?? []) used.add(id);
+    if (assignment.random) used.add(assignment.random);
+  }
+  return [...catalog.values()].filter((problem) => used.has(problem.id))
+    .sort((a, b) => a.id.localeCompare(b.id));
+}
+
+// 아직 랜덤 문제를 받지 않은 멤버에게 배정한다. 이미 받은 멤버는 건드리지 않는다.
+export function assignMembers(week, { problems, weeks, logins }) {
+  const assignments = { ...(week.assignments ?? {}) };
+  const extra = [];
+  const thisWeek = new Set(Object.values(assignments).flatMap((a) => [...(a.picked ?? []), a.random].filter(Boolean)));
+  let added = 0;
+
+  for (const login of [...logins].sort()) {
+    const current = assignments[login] ?? { picked: [], random: null };
+    if (current.random) { assignments[login] = current; continue; }
+
+    const problem = pickRandom(problems, `${week.id}-${login}-random`, {
+      excluded: new Set([...assignedTo(weeks, login), ...(current.picked ?? [])]),
+      deprioritized: thisWeek,
+    });
+    if (!problem) throw new Error(`${week.id}: ${login} 에게 줄 문제가 부족합니다. npm run collect 를 먼저 실행하세요.`);
+    assignments[login] = { ...current, random: problem.id };
+    extra.push(problem);
+    thisWeek.add(problem.id);
+    added += 1;
+  }
+
+  const ordered = Object.fromEntries(Object.keys(assignments).sort().map((login) => [login, assignments[login]]));
+  const next = { ...week, assignments: ordered };
+  return { added, week: { ...next, problems: syncCatalog(next, extra) } };
+}
+
+export function buildWeek({ problems, weeks, logins, year, week, topicSlug }) {
   const topic = topicSlug ? TOPIC_BY_SLUG.get(topicSlug) : nextTopic(weeks);
   if (!topic) throw new Error(`알 수 없는 알고리즘입니다: ${topicSlug}`);
-  const picks = selectProblems(problems, weeks, topic.slug, `${year}-${week}-${topic.slug}`);
-  if (picks.length < 3) throw new Error("문제가 부족합니다. npm run collect 를 먼저 실행하세요.");
-  return {
-    id: weekId(year, week),
+  const id = weekId(year, week);
+  const base = {
+    id,
     topic: topic.slug,
     "topic-name": topic.name,
     ...isoWeekDates(year, week),
-    problems: picks.map(({ id, source, title, url, difficulty, label, kind }) =>
-      ({ id, source, title, url, difficulty, label, kind })),
+    suggestions: suggestProblems(problems, topic.slug, `${id}-${topic.slug}`).map(problemMetadata),
+    problems: [],
+    assignments: {},
   };
+  return assignMembers(base, { problems, weeks, logins }).week;
+}
+
+// members/*.md 에 등록된 GitHub ID
+export async function readMemberLogins() {
+  const entries = await readdir(path.join(ROOT, "members")).catch(() => []);
+  return entries.filter((name) => name.endsWith(".md")).map((name) => name.slice(0, -3));
 }

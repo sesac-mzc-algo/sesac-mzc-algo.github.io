@@ -3,7 +3,8 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { parse } from "yaml";
 import { TOPIC_BY_SLUG } from "./topics.mjs";
-import { WEEK_ID, isoWeekDates } from "./weeks.mjs";
+import { WEEK_ID, MAX_PICKS, isoWeekDates } from "./weeks.mjs";
+import { parseProblemUrl, LinkError } from "./problem-link.mjs";
 
 const MAX_FILE_SIZE = 2 * 1024 * 1024;
 const GITHUB_ID = /^[a-z\d](?:-?[a-z\d]){0,38}$/;
@@ -12,7 +13,6 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const STATUSES = new Set(["todo", "doing", "done"]);
 const LANGUAGES = new Set(["python", "javascript", "typescript", "java", "cpp", "c", "csharp",
                            "go", "rust", "kotlin", "swift", "ruby", "sql", "text"]);
-const KINDS = new Set(["topic", "random"]);
 const UNSAFE_MARKUP = /<(?:embed|iframe|link|object|script|style)\b|\son[a-z]+\s*=/i;
 
 function requireValue(condition, message) {
@@ -54,7 +54,7 @@ function requireSafeBody(body, label) {
 
 // ---------- weeks ----------
 
-function validateWeek(id, value, label) {
+function validateWeek(id, value, label, members) {
   const match = WEEK_ID.exec(id);
   requireValue(match, `${label}: 파일명은 YYYY-Www 형식이어야 합니다. (예: 2026-W40.yaml)`);
   const [year, week] = [Number(match[1]), Number(match[2])];
@@ -75,25 +75,59 @@ function validateWeek(id, value, label) {
     `${label}: 날짜가 ISO 주차와 다릅니다. (${dates.start} ~ ${dates.end})`,
   );
 
-  requireValue(Array.isArray(value.problems), `${label}: problems 배열이 필요합니다.`);
-  requireValue(value.problems.length === 3, `${label}: 문제는 3개여야 합니다. (주제 2 + 랜덤 1)`);
-  const seen = new Set();
-  for (const problem of value.problems) {
-    const at = `${label}: ${problem?.id ?? "?"}`;
+  const problemEntry = (problem, at, catalog) => {
     requireValue(PROBLEM_ID.test(problem?.id ?? ""), `${at}: 문제 id 형식이 올바르지 않습니다.`);
-    requireValue(!seen.has(problem.id), `${at}: 같은 문제가 중복되었습니다.`);
-    seen.add(problem.id);
+    requireValue(!catalog.has(problem.id), `${at}: 같은 문제가 중복되었습니다.`);
+    catalog.add(problem.id);
     requireValue(problem.id.startsWith(`${problem.source}-`), `${at}: id와 source가 다릅니다.`);
     requireValue(typeof problem.title === "string" && problem.title.trim(), `${at}: title이 필요합니다.`);
     requireValue(/^https:\/\//.test(problem.url ?? ""), `${at}: url은 https여야 합니다.`);
     requireValue([1, 2, 3].includes(problem.difficulty), `${at}: difficulty는 1, 2, 3 중 하나여야 합니다.`);
     requireValue(typeof problem.label === "string" && problem.label.trim(), `${at}: label이 필요합니다.`);
-    requireValue(KINDS.has(problem.kind), `${at}: kind는 topic 또는 random이어야 합니다.`);
+  };
+
+  requireValue(Array.isArray(value.suggestions), `${label}: suggestions 배열이 필요합니다.`);
+  const suggested = new Set();
+  for (const problem of value.suggestions) {
+    problemEntry(problem, `${label}: 추천 ${problem?.id ?? "?"}`, suggested);
   }
+
+  requireValue(Array.isArray(value.problems), `${label}: problems 배열이 필요합니다.`);
+  const catalog = new Set();
+  for (const problem of value.problems) problemEntry(problem, `${label}: ${problem?.id ?? "?"}`, catalog);
+
+  const assignments = value.assignments ?? {};
   requireValue(
-    value.problems.filter((problem) => problem.kind === "random").length === 1,
-    `${label}: 랜덤 문제는 정확히 1개여야 합니다.`,
+    assignments && typeof assignments === "object" && !Array.isArray(assignments),
+    `${label}: assignments는 GitHub ID를 키로 하는 객체여야 합니다.`,
   );
+  const assigned = new Set();
+  for (const [login, assignment] of Object.entries(assignments)) {
+    const at = `${label}: @${login}`;
+    requireValue(GITHUB_ID.test(login), `${at}: 소문자 GitHub ID여야 합니다.`);
+    requireValue(members.has(login), `${at}: members/${login}.md 가 없습니다.`);
+    requireValue(
+      assignment && typeof assignment === "object" && !Array.isArray(assignment),
+      `${at}: picked와 random을 가진 객체여야 합니다.`,
+    );
+
+    const picked = assignment.picked ?? [];
+    requireValue(Array.isArray(picked), `${at}: picked는 배열이어야 합니다.`);
+    requireValue(picked.length <= MAX_PICKS, `${at}: 직접 고르는 문제는 ${MAX_PICKS}개까지입니다.`);
+    requireValue(new Set(picked).size === picked.length, `${at}: 같은 문제를 중복해서 골랐습니다.`);
+
+    requireValue(typeof assignment.random === "string", `${at}: random 문제가 필요합니다.`);
+    requireValue(!picked.includes(assignment.random), `${at}: 직접 고른 문제가 랜덤 문제와 같습니다.`);
+
+    for (const id of [...picked, assignment.random]) {
+      requireValue(catalog.has(id), `${at}: problems에 없는 문제입니다: ${id}`);
+      assigned.add(id);
+    }
+  }
+  for (const id of catalog) {
+    requireValue(assigned.has(id), `${label}: 아무에게도 할당되지 않은 문제가 있습니다: ${id}`);
+  }
+
   return { id, ...value };
 }
 
@@ -101,11 +135,14 @@ function validateWeek(id, value, label) {
 
 function validateSolution(source, label, { week, login, problemId, members }) {
   requireValue(week, `${label}: weeks/${label.split("/")[1]}.yaml 이 없습니다.`);
-  requireValue(
-    week.problems.some((problem) => problem.id === problemId),
-    `${label}: ${week.id} 주차에 없는 문제입니다.`,
-  );
   requireValue(members.has(login), `${label}: members/${login}.md 를 먼저 추가해야 합니다.`);
+  const assignment = week.assignments?.[login];
+  requireValue(assignment, `${label}: ${week.id} 주차에 @${login} 의 할당이 없습니다.`);
+  const mine = [...(assignment.picked ?? []), assignment.random];
+  requireValue(
+    mine.includes(problemId),
+    `${label}: @${login} 에게 할당된 문제가 아닙니다. (${mine.join(", ")})`,
+  );
 
   const { frontmatter, body } = splitDocument(source, label);
   requireValue(frontmatter, `${label}: status frontmatter가 필요합니다.`);
@@ -131,18 +168,6 @@ function validateSolution(source, label, { week, login, problemId, members }) {
 // ---------- 전체 ----------
 
 export async function validateBoard(root) {
-  const weeksRoot = path.join(root, "weeks");
-  const weeks = new Map();
-  for (const entry of await readdir(weeksRoot, { withFileTypes: true }).catch(() => [])) {
-    if (entry.name === ".gitkeep") continue;
-    const label = `weeks/${entry.name}`;
-    requireValue(entry.isFile() && entry.name.endsWith(".yaml"), `${label}: YAML 파일이어야 합니다.`);
-    const file = path.join(weeksRoot, entry.name);
-    await validateFile(file, label);
-    const id = entry.name.slice(0, -5);
-    weeks.set(id, validateWeek(id, parse(await readFile(file, "utf8")), label));
-  }
-
   const membersRoot = path.join(root, "members");
   const members = new Set();
   for (const entry of await readdir(membersRoot, { withFileTypes: true }).catch(() => [])) {
@@ -157,6 +182,52 @@ export async function validateBoard(root) {
     requireValue(/^#\s+\S/.test(body.split("\n")[0].trim()), `${label}: 첫 줄은 표시할 이름 제목이어야 합니다.`);
     requireSafeBody(body, label);
     members.add(login);
+  }
+
+  const weeksRoot = path.join(root, "weeks");
+  const weeks = new Map();
+  for (const entry of await readdir(weeksRoot, { withFileTypes: true }).catch(() => [])) {
+    if (entry.name === ".gitkeep") continue;
+    const label = `weeks/${entry.name}`;
+    requireValue(entry.isFile() && entry.name.endsWith(".yaml"), `${label}: YAML 파일이어야 합니다.`);
+    const file = path.join(weeksRoot, entry.name);
+    await validateFile(file, label);
+    const id = entry.name.slice(0, -5);
+    weeks.set(id, validateWeek(id, parse(await readFile(file, "utf8")), label, members));
+  }
+
+  const picksRoot = path.join(root, "picks");
+  for (const weekEntry of await readdir(picksRoot, { withFileTypes: true }).catch(() => [])) {
+    if (weekEntry.name === ".gitkeep") continue;
+    requireValue(weekEntry.isDirectory(), `picks/${weekEntry.name}: 주차 디렉터리여야 합니다.`);
+    requireValue(WEEK_ID.test(weekEntry.name), `picks/${weekEntry.name}: YYYY-Www 형식이어야 합니다.`);
+    requireValue(weeks.has(weekEntry.name), `picks/${weekEntry.name}: weeks/${weekEntry.name}.yaml 이 없습니다.`);
+
+    for (const entry of await readdir(path.join(picksRoot, weekEntry.name), { withFileTypes: true })) {
+      const label = `picks/${weekEntry.name}/${entry.name}`;
+      requireValue(entry.isFile() && entry.name.endsWith(".yaml"), `${label}: YAML 파일이어야 합니다.`);
+      const login = entry.name.slice(0, -5);
+      requireValue(GITHUB_ID.test(login), `${label}: 파일명은 소문자 GitHub ID여야 합니다.`);
+      requireValue(members.has(login), `${label}: members/${login}.md 를 먼저 추가해야 합니다.`);
+
+      const file = path.join(picksRoot, weekEntry.name, entry.name);
+      await validateFile(file, label);
+      const urls = parse(await readFile(file, "utf8"));
+      requireValue(Array.isArray(urls) && urls.length > 0, `${label}: 문제 링크 목록이어야 합니다.`);
+      requireValue(urls.length <= MAX_PICKS, `${label}: 링크는 ${MAX_PICKS}개까지입니다.`);
+      const seen = new Set();
+      for (const url of urls) {
+        try {
+          const link = parseProblemUrl(url);
+          const key = `${link.source}:${link.ref}`;
+          requireValue(!seen.has(key), `${label}: 같은 문제를 두 번 적었습니다: ${url}`);
+          seen.add(key);
+        } catch (error) {
+          if (error instanceof LinkError) throw new Error(`${label}: ${error.message}`);
+          throw error;
+        }
+      }
+    }
   }
 
   const solutionsRoot = path.join(root, "solutions");

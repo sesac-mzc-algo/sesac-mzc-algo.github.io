@@ -234,3 +234,20 @@ main.doc { max-width: 860px; margin: 0 auto; padding: 26px 20px 80px; }
   .lane-columns .col { border-right: none; border-bottom: 1px solid var(--line); }
   .lane-columns .col:last-child { border-bottom: none; }
 }
+
+/* ---------- 추천 문제 · 직접 고르기 ---------- */
+.suggestions summary { cursor: pointer; list-style: none; }
+.suggestions summary::-webkit-details-marker { display: none; }
+.suggestions summary::before { content: "▸ "; color: var(--muted); }
+.suggestions[open] summary::before { content: "▾ "; }
+.suggestions ul { list-style: none; margin: 12px 0 0; padding: 0; }
+.suggestions li { display: flex; align-items: center; gap: 7px; padding: 5px 0;
+  border-top: 1px solid var(--line); font-size: 13px; }
+.suggestions li a { text-decoration: none; }
+.suggestions li a:hover { text-decoration: underline; }
+
+.tag.kind-picked { background: var(--bg); color: var(--muted); }
+.pick-todo { margin: 0; padding: 9px 14px; font-size: 12.5px; color: var(--muted);
+  background: var(--accent-soft); border-bottom: 1px solid var(--line); }
+.pick-todo code { background: var(--panel); border: 1px solid var(--line); border-radius: 5px;
+  padding: 1px 5px; font-size: 11.5px; }

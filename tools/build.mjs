@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { micromark } from "micromark";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
-import { ROOT, isoWeek, readWeeks } from "./weeks.mjs";
+import { ROOT, MAX_PICKS, isoWeek, readWeeks } from "./weeks.mjs";
 import { splitDocument } from "./validate.mjs";
 
 const DIST = path.join(ROOT, "dist");
@@ -104,18 +104,26 @@ function boardPage({ weeks, members, solutions, current }) {
   const byKey = new Map(solutions.map((s) => [`${s.weekId}/${s.login}/${s.problemId}`, s]));
   const cards = [];
   for (const week of weeks) {
-    for (const problem of week.problems) {
-      for (const member of members) {
-        const solution = byKey.get(`${week.id}/${member.login}/${problem.id}`);
+    const catalog = new Map(week.problems.map((problem) => [problem.id, problem]));
+    for (const [login, assignment] of Object.entries(week.assignments ?? {})) {
+      const member = members.find((candidate) => candidate.login === login);
+      if (!member) continue;
+      const entries = [
+        ...(assignment.picked ?? []).map((id) => ({ id, kind: "picked" })),
+        ...(assignment.random ? [{ id: assignment.random, kind: "random" }] : []),
+      ];
+      for (const { id, kind } of entries) {
+        const problem = catalog.get(id);
+        if (!problem) continue;
+        const solution = byKey.get(`${week.id}/${login}/${id}`);
         cards.push({
           weekId: week.id, week: week.week, year: week.year, topic: week["topic-name"],
-          login: member.login, name: member.name,
+          login, name: member.name,
           problem: problem.id, title: problem.title, source: problem.source,
-          difficulty: problem.difficulty, label: problem.label, kind: problem.kind,
+          difficulty: problem.difficulty, label: problem.label, kind,
           url: problem.url, page: link(`/p/${week.id}/${problem.id}.html`),
           status: solution?.status ?? "todo",
           language: solution?.language ?? null,
-          written: Boolean(solution),
         });
       }
     }
@@ -147,6 +155,18 @@ function boardPage({ weeks, members, solutions, current }) {
 </div>
 
 <main>
+  ${currentWeek ? `
+  <details class="panel suggestions">
+    <summary><b>이번 주 추천 문제</b> <span class="hint">· ${esc(currentWeek["topic-name"])} · 여기서 골라도 되고 다른 문제를 골라도 됩니다</span></summary>
+    <ul>
+      ${(currentWeek.suggestions ?? []).map((problem) => `
+        <li>
+          <span class="tag src-${problem.source}">${problem.source === "leetcode" ? "LeetCode" : "프로그래머스"}</span>
+          <span class="tag d${problem.difficulty}">${esc(problem.label)}</span>
+          <a href="${esc(problem.url)}" target="_blank" rel="noopener">${esc(problem.title)}</a>
+        </li>`).join("")}
+    </ul>
+  </details>` : ""}
   ${members.length === 0
     ? '<div class="panel"><b>아직 멤버가 없습니다.</b> <span class="hint">members/&lt;github-id&gt;.md 를 추가하는 PR을 열어주세요.</span></div>'
     : '<div id="lanes"></div>'}
@@ -157,6 +177,14 @@ const CARDS = ${JSON.stringify(cards)};
 const MEMBERS = ${JSON.stringify(members.map(({ login, name }) => ({ login, name, page: link(`/m/${login}.html`) })))};
 const CURRENT = ${JSON.stringify(currentWeek?.id ?? null)};
 const STATUSES = ${JSON.stringify(STATUSES)};
+const MAX_PICKS = ${MAX_PICKS};
+const PENDING = ${JSON.stringify(weeks.flatMap((week) => Object.entries(week.assignments ?? {})
+  .map(([login, assignment]) => ({
+    weekId: week.id, login,
+    remaining: MAX_PICKS - (assignment.picked?.length ?? 0),
+    path: `picks/${week.id}/${login}.yaml`,
+  }))
+  .filter((entry) => entry.remaining > 0)))};
 </script>
 <script src="${link("/app.js")}"></script>`;
 
@@ -184,7 +212,7 @@ function problemPage({ week, problem, members, solutions }) {
     <a href="${esc(problem.url)}" target="_blank" rel="noopener">문제 풀러 가기 ↗</a>
   </div>
 
-  <p class="hint spoiler-note">스포일러를 피하려면 직접 풀어본 뒤에 펼쳐보세요. ${written.length} / ${members.length}명 작성</p>
+  <p class="hint spoiler-note">이 문제를 받은 ${members.length}명 중 ${written.length}명이 풀이를 올렸습니다. 스포일러를 피하려면 직접 풀어본 뒤에 펼쳐보세요.</p>
 
   ${members.map((member) => {
     const solution = solutions.find((s) => s.login === member.login);
@@ -223,10 +251,18 @@ function problemPage({ week, problem, members, solutions }) {
 function memberPage({ member, weeks, solutions }) {
   const mine = solutions.filter((s) => s.login === member.login);
   const doneCount = mine.filter((s) => s.status === "done").length;
-  const rows = weeks.flatMap((week) => week.problems.map((problem) => {
-    const solution = mine.find((s) => s.weekId === week.id && s.problemId === problem.id);
-    return { week, problem, status: solution?.status ?? "todo", language: solution?.language };
-  }));
+  const rows = weeks.flatMap((week) => {
+    const catalog = new Map(week.problems.map((problem) => [problem.id, problem]));
+    const assignment = week.assignments?.[member.login];
+    if (!assignment) return [];
+    const ids = [...(assignment.picked ?? []), ...(assignment.random ? [assignment.random] : [])];
+    return ids.map((problemId) => {
+      const problem = catalog.get(problemId);
+      const solution = mine.find((s) => s.weekId === week.id && s.problemId === problemId);
+      const kind = assignment.random === problemId ? "random" : "picked";
+      return { week, problem, kind, status: solution?.status ?? "todo", language: solution?.language };
+    }).filter((row) => row.problem);
+  });
 
   const body = `
 <main class="doc">
@@ -237,10 +273,13 @@ function memberPage({ member, weeks, solutions }) {
   <table class="member-table">
     <thead><tr><th>주차</th><th>문제</th><th>난이도</th><th>상태</th></tr></thead>
     <tbody>
-      ${rows.map(({ week, problem, status, language }) => `
+      ${rows.map(({ week, problem, kind, status, language }) => `
         <tr>
           <td class="hint">${week.year} ${week.week}주차</td>
-          <td><a href="${link(`/p/${week.id}/${problem.id}.html`)}">${esc(problem.title)}</a></td>
+          <td>
+            <a href="${link(`/p/${week.id}/${problem.id}.html`)}">${esc(problem.title)}</a>
+            ${kind === "random" ? '<span class="tag kind-random">랜덤</span>' : ""}
+          </td>
           <td><span class="tag d${problem.difficulty}">${esc(problem.label)}</span></td>
           <td><span class="dot ${status}"></span> ${STATUS_LABEL[status]}${language ? ` <span class="hint">· ${esc(LANGUAGE_LABEL[language] ?? language)}</span>` : ""}</td>
         </tr>`).join("")}
@@ -267,10 +306,15 @@ async function build() {
   for (const week of weeks) {
     await mkdir(path.join(DIST, "p", week.id), { recursive: true });
     for (const problem of week.problems) {
+      const holders = members.filter((member) => {
+        const assignment = week.assignments?.[member.login];
+        if (!assignment) return false;
+        return (assignment.picked ?? []).includes(problem.id) || assignment.random === problem.id;
+      });
       const forProblem = solutions.filter((s) => s.weekId === week.id && s.problemId === problem.id);
       await writeFile(
         path.join(DIST, "p", week.id, `${problem.id}.html`),
-        problemPage({ week, problem, members, solutions: forProblem }),
+        problemPage({ week, problem, members: holders, solutions: forProblem }),
       );
       pages += 1;
     }

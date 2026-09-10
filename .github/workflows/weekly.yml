@@ -32,6 +32,9 @@ jobs:
       - name: Generate week
         run: node tools/generate-week.mjs "${{ inputs.week }}" "${{ inputs.topic }}"
 
+      - name: Assign random problems to members
+        run: node tools/assign.mjs
+
       - run: npm run validate
 
       - name: Commit

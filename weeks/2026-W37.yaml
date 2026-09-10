@@ -2,25 +2,42 @@ topic: hash
 topic-name: 해시 / 맵
 start: 2026-09-07
 end: 2026-09-13
-problems:
+suggestions:
   - id: programmers-1845
     source: programmers
     title: 폰켓몬
     url: https://school.programmers.co.kr/learn/courses/30/lessons/1845
     difficulty: 1
     label: Lv.1
-    kind: topic
-  - id: leetcode-3
+  - id: leetcode-219
     source: leetcode
-    title: 3. Longest Substring Without Repeating Characters
-    url: https://leetcode.com/problems/longest-substring-without-repeating-characters/
-    difficulty: 2
-    label: Medium
-    kind: topic
-  - id: leetcode-643
-    source: leetcode
-    title: 643. Maximum Average Subarray I
-    url: https://leetcode.com/problems/maximum-average-subarray-i/
+    title: 219. Contains Duplicate II
+    url: https://leetcode.com/problems/contains-duplicate-ii/
     difficulty: 1
     label: Easy
-    kind: random
+  - id: programmers-42578
+    source: programmers
+    title: 의상
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42578
+    difficulty: 2
+    label: Lv.2
+  - id: leetcode-17
+    source: leetcode
+    title: 17. Letter Combinations of a Phone Number
+    url: https://leetcode.com/problems/letter-combinations-of-a-phone-number/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-149
+    source: leetcode
+    title: 149. Max Points on a Line
+    url: https://leetcode.com/problems/max-points-on-a-line/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-30
+    source: leetcode
+    title: 30. Substring with Concatenation of All Words
+    url: https://leetcode.com/problems/substring-with-concatenation-of-all-words/
+    difficulty: 3
+    label: Hard
+problems: []
+assignments: {}

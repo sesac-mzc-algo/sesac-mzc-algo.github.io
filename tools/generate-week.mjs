@@ -7,7 +7,7 @@ import { writeFile, access } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { stringify } from "yaml";
-import { ROOT, WEEK_ID, isoWeek, weekId, readProblems, readWeeks, buildWeek } from "./weeks.mjs";
+import { ROOT, WEEK_ID, isoWeek, weekId, readProblems, readWeeks, readMemberLogins, buildWeek } from "./weeks.mjs";
 
 const [target, topicSlug] = process.argv.slice(2);
 const current = isoWeek();
@@ -26,11 +26,28 @@ if (await access(file).then(() => true, () => false)) {
   process.exit(0);
 }
 
-const value = buildWeek({ problems: await readProblems(), weeks: await readWeeks(), year, week, topicSlug });
+const logins = await readMemberLogins();
+const value = buildWeek({
+  problems: await readProblems(), weeks: await readWeeks(), logins, year, week, topicSlug,
+});
 delete value.id;
 await writeFile(file, stringify(value, { lineWidth: 0 }));
 
 console.log(`generate-week: weeks/${id}.yaml 생성 — 주제: ${value["topic-name"]}`);
-for (const problem of value.problems) {
-  console.log(`  ${problem.kind === "random" ? "🎲" : "  "} [${problem.source} ${problem.label}] ${problem.title}`);
+const titles = new Map([...value.problems, ...value.suggestions].map((problem) => [problem.id, problem]));
+const show = (id, mark) => {
+  const problem = titles.get(id);
+  console.log(`    ${mark} [${problem.source} ${problem.label}] ${problem.title}`);
+};
+
+console.log("  추천 문제 (직접 고를 때 참고)");
+for (const problem of value.suggestions) show(problem.id, "·");
+
+for (const [login, assignment] of Object.entries(value.assignments)) {
+  console.log(`  @${login}`);
+  for (const id of assignment.picked ?? []) show(id, "  ");
+  if (assignment.random) show(assignment.random, "🎲");
+  const remaining = 2 - (assignment.picked?.length ?? 0);
+  if (remaining > 0) console.log(`      (직접 고를 문제 ${remaining}개 — picks/${id}/${login}.yaml)`);
 }
+if (logins.length === 0) console.log("  (등록된 멤버가 없습니다. members/<github-id>.md 를 추가하면 배정됩니다.)");

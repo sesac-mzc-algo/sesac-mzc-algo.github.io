@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - main
-  # weekly 가 주차 파일을 커밋해도 배포되도록 (GITHUB_TOKEN 커밋은 push 이벤트를 만들지 않는다)
+  # weekly / assign 이 주차 파일을 커밋해도 배포되도록
+  # (GITHUB_TOKEN 으로 만든 커밋은 push 이벤트를 만들지 않는다)
   workflow_run:
     workflows:
       - weekly
+      - assign
     types:
       - completed
   workflow_dispatch:

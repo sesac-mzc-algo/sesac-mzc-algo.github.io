@@ -13,11 +13,11 @@ function cardHtml(card) {
       <div class="row1">
         <span class="tag src-${card.source}">${SOURCE_LABEL[card.source]}</span>
         <span class="tag d${card.difficulty}">${esc(card.label)}</span>
-        ${card.kind === "random" ? '<span class="tag kind-random">랜덤</span>' : ""}
+        <span class="tag kind-${card.kind}">${card.kind === "random" ? "랜덤" : "직접 고름"}</span>
       </div>
       <span class="title">${esc(card.title)}</span>
       <div class="meta">
-        <span>${showWeek ? `${card.year} ${card.week}주차 · ${esc(card.topic)}` : esc(card.topic)}</span>
+        <span>${showWeek ? `${card.year} ${card.week}주차 · ${esc(card.topic)}` : ""}</span>
         ${card.language ? `<span class="owner">${esc(card.language)}</span>` : ""}
       </div>
     </a>`;
@@ -26,6 +26,8 @@ function cardHtml(card) {
 function laneHtml(member, cards) {
   const done = cards.filter((card) => card.status === "done").length;
   const ratio = cards.length ? Math.round((done / cards.length) * 100) : 0;
+  const pending = PENDING.filter((entry) => entry.login === member.login
+    && (filters.week === "all" || entry.weekId === (filters.week === "current" ? CURRENT : filters.week)));
   return `
     <section class="lane">
       <div class="lane-head">
@@ -36,6 +38,8 @@ function laneHtml(member, cards) {
           <b>${done}</b>/${cards.length}
         </span>
       </div>
+      ${pending.length ? `<p class="pick-todo">아직 고르지 않은 문제 ${pending.reduce((sum, entry) => sum + entry.remaining, 0)}개 —
+        <code>${pending.map((entry) => entry.path).join("</code>, <code>")}</code> 에 링크를 넣어 PR을 열어주세요.</p>` : ""}
       <div class="lane-columns">
         ${STATUSES.map(([status, label]) => {
           const list = cards.filter((card) => card.status === status);
