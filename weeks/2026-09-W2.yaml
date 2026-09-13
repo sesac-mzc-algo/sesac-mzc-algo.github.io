@@ -82,6 +82,12 @@ problems:
     url: https://leetcode.com/problems/lru-cache/
     difficulty: 2
     label: Medium
+  - id: leetcode-290
+    source: leetcode
+    title: 290. Word Pattern
+    url: https://leetcode.com/problems/word-pattern/
+    difficulty: 1
+    label: Easy
   - id: leetcode-347
     source: leetcode
     title: 347. Top K Frequent Elements
@@ -118,6 +124,12 @@ problems:
     url: https://school.programmers.co.kr/learn/courses/30/lessons/1844
     difficulty: 2
     label: Lv.2
+  - id: programmers-42576
+    source: programmers
+    title: 완주하지 못한 선수
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42576
+    difficulty: 1
+    label: Lv.1
   - id: programmers-42577
     source: programmers
     title: 전화번호 목록
@@ -143,7 +155,9 @@ assignments:
       - leetcode-347
     random: programmers-1844
   pinodo:
-    picked: []
+    picked:
+      - programmers-42576
+      - leetcode-290
     random: programmers-12977
   sjungwon03:
     picked:
