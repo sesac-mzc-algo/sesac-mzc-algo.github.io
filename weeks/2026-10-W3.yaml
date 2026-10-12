@@ -1,0 +1,124 @@
+topic: binary-search
+topic-name: 이분 탐색
+start: 2026-10-12
+end: 2026-10-18
+suggestions:
+  - id: leetcode-278
+    source: leetcode
+    title: 278. First Bad Version
+    url: https://leetcode.com/problems/first-bad-version/
+    difficulty: 1
+    label: Easy
+  - id: programmers-43238
+    source: programmers
+    title: 입국심사
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/43238
+    difficulty: 2
+    label: Lv.3
+  - id: leetcode-167
+    source: leetcode
+    title: 167. Two Sum II - Input Array Is Sorted
+    url: https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
+    difficulty: 2
+    label: Medium
+  - id: programmers-43236
+    source: programmers
+    title: 징검다리
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/43236
+    difficulty: 3
+    label: Lv.4
+  - id: leetcode-4
+    source: leetcode
+    title: 4. Median of Two Sorted Arrays
+    url: https://leetcode.com/problems/median-of-two-sorted-arrays/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-367
+    source: leetcode
+    title: 367. Valid Perfect Square
+    url: https://leetcode.com/problems/valid-perfect-square/
+    difficulty: 1
+    label: Easy
+  - id: leetcode-528
+    source: leetcode
+    title: 528. Random Pick with Weight
+    url: https://leetcode.com/problems/random-pick-with-weight/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-154
+    source: leetcode
+    title: 154. Find Minimum in Rotated Sorted Array II
+    url: https://leetcode.com/problems/find-minimum-in-rotated-sorted-array-ii/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-744
+    source: leetcode
+    title: 744. Find Smallest Letter Greater Than Target
+    url: https://leetcode.com/problems/find-smallest-letter-greater-than-target/
+    difficulty: 1
+    label: Easy
+  - id: leetcode-540
+    source: leetcode
+    title: 540. Single Element in a Sorted Array
+    url: https://leetcode.com/problems/single-element-in-a-sorted-array/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-354
+    source: leetcode
+    title: 354. Russian Doll Envelopes
+    url: https://leetcode.com/problems/russian-doll-envelopes/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-35
+    source: leetcode
+    title: 35. Search Insert Position
+    url: https://leetcode.com/problems/search-insert-position/
+    difficulty: 1
+    label: Easy
+problems:
+  - id: leetcode-125
+    source: leetcode
+    title: 125. Valid Palindrome
+    url: https://leetcode.com/problems/valid-palindrome/
+    difficulty: 1
+    label: Easy
+  - id: leetcode-289
+    source: leetcode
+    title: 289. Game of Life
+    url: https://leetcode.com/problems/game-of-life/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-345
+    source: leetcode
+    title: 345. Reverse Vowels of a String
+    url: https://leetcode.com/problems/reverse-vowels-of-a-string/
+    difficulty: 1
+    label: Easy
+  - id: leetcode-735
+    source: leetcode
+    title: 735. Asteroid Collision
+    url: https://leetcode.com/problems/asteroid-collision/
+    difficulty: 2
+    label: Medium
+  - id: programmers-12951
+    source: programmers
+    title: JadenCase 문자열 만들기
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/12951
+    difficulty: 2
+    label: Lv.2
+assignments:
+  jihoon-devstu:
+    picked: []
+    random: leetcode-125
+  myh7754:
+    picked: []
+    random: programmers-12951
+  perish95:
+    picked: []
+    random: leetcode-345
+  pinodo:
+    picked: []
+    random: leetcode-735
+  sjungwon03:
+    picked: []
+    random: leetcode-289
