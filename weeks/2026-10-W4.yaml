@@ -1,0 +1,124 @@
+topic: brute-force
+topic-name: 완전 탐색
+start: 2026-10-19
+end: 2026-10-25
+suggestions:
+  - id: programmers-42840
+    source: programmers
+    title: 모의고사
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42840
+    difficulty: 1
+    label: Lv.1
+  - id: leetcode-1025
+    source: leetcode
+    title: 1025. Divisor Game
+    url: https://leetcode.com/problems/divisor-game/
+    difficulty: 1
+    label: Easy
+  - id: programmers-42839
+    source: programmers
+    title: 소수 찾기
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42839
+    difficulty: 2
+    label: Lv.2
+  - id: leetcode-970
+    source: leetcode
+    title: 970. Powerful Integers
+    url: https://leetcode.com/problems/powerful-integers/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-906
+    source: leetcode
+    title: 906. Super Palindromes
+    url: https://leetcode.com/problems/super-palindromes/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-292
+    source: leetcode
+    title: 292. Nim Game
+    url: https://leetcode.com/problems/nim-game/
+    difficulty: 1
+    label: Easy
+  - id: programmers-42842
+    source: programmers
+    title: 카펫
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42842
+    difficulty: 2
+    label: Lv.2
+  - id: leetcode-949
+    source: leetcode
+    title: 949. Largest Time for Given Digits
+    url: https://leetcode.com/problems/largest-time-for-given-digits/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-810
+    source: leetcode
+    title: 810. Chalkboard XOR Game
+    url: https://leetcode.com/problems/chalkboard-xor-game/
+    difficulty: 3
+    label: Hard
+  - id: programmers-87946
+    source: programmers
+    title: 피로도
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/87946
+    difficulty: 2
+    label: Lv.2
+  - id: leetcode-816
+    source: leetcode
+    title: 816. Ambiguous Coordinates
+    url: https://leetcode.com/problems/ambiguous-coordinates/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-479
+    source: leetcode
+    title: 479. Largest Palindrome Product
+    url: https://leetcode.com/problems/largest-palindrome-product/
+    difficulty: 3
+    label: Hard
+problems:
+  - id: leetcode-123
+    source: leetcode
+    title: 123. Best Time to Buy and Sell Stock III
+    url: https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-33
+    source: leetcode
+    title: 33. Search in Rotated Sorted Array
+    url: https://leetcode.com/problems/search-in-rotated-sorted-array/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-58
+    source: leetcode
+    title: 58. Length of Last Word
+    url: https://leetcode.com/problems/length-of-last-word/
+    difficulty: 1
+    label: Easy
+  - id: leetcode-6
+    source: leetcode
+    title: 6. Zigzag Conversion
+    url: https://leetcode.com/problems/zigzag-conversion/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-704
+    source: leetcode
+    title: 704. Binary Search
+    url: https://leetcode.com/problems/binary-search/
+    difficulty: 1
+    label: Easy
+assignments:
+  jihoon-devstu:
+    picked: []
+    random: leetcode-704
+  myh7754:
+    picked: []
+    random: leetcode-33
+  perish95:
+    picked: []
+    random: leetcode-58
+  pinodo:
+    picked: []
+    random: leetcode-123
+  sjungwon03:
+    picked: []
+    random: leetcode-6
