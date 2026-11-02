@@ -1,0 +1,124 @@
+topic: dfs-bfs
+topic-name: DFS / BFS
+start: 2026-11-02
+end: 2026-11-08
+suggestions:
+  - id: leetcode-104
+    source: leetcode
+    title: 104. Maximum Depth of Binary Tree
+    url: https://leetcode.com/problems/maximum-depth-of-binary-tree/
+    difficulty: 1
+    label: Easy
+  - id: programmers-43162
+    source: programmers
+    title: 네트워크
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/43162
+    difficulty: 2
+    label: Lv.3
+  - id: leetcode-337
+    source: leetcode
+    title: 337. House Robber III
+    url: https://leetcode.com/problems/house-robber-iii/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-127
+    source: leetcode
+    title: 127. Word Ladder
+    url: https://leetcode.com/problems/word-ladder/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-101
+    source: leetcode
+    title: 101. Symmetric Tree
+    url: https://leetcode.com/problems/symmetric-tree/
+    difficulty: 1
+    label: Easy
+  - id: programmers-43165
+    source: programmers
+    title: 타겟 넘버
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/43165
+    difficulty: 2
+    label: Lv.2
+  - id: leetcode-437
+    source: leetcode
+    title: 437. Path Sum III
+    url: https://leetcode.com/problems/path-sum-iii/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-1192
+    source: leetcode
+    title: 1192. Critical Connections in a Network
+    url: https://leetcode.com/problems/critical-connections-in-a-network/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-872
+    source: leetcode
+    title: 872. Leaf-Similar Trees
+    url: https://leetcode.com/problems/leaf-similar-trees/
+    difficulty: 1
+    label: Easy
+  - id: programmers-1844
+    source: programmers
+    title: 게임 맵 최단거리
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/1844
+    difficulty: 2
+    label: Lv.2
+  - id: leetcode-200
+    source: leetcode
+    title: 200. Number of Islands
+    url: https://leetcode.com/problems/number-of-islands/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-124
+    source: leetcode
+    title: 124. Binary Tree Maximum Path Sum
+    url: https://leetcode.com/problems/binary-tree-maximum-path-sum/
+    difficulty: 3
+    label: Hard
+problems:
+  - id: leetcode-300
+    source: leetcode
+    title: 300. Longest Increasing Subsequence
+    url: https://leetcode.com/problems/longest-increasing-subsequence/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-547
+    source: leetcode
+    title: 547. Number of Provinces
+    url: https://leetcode.com/problems/number-of-provinces/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-872
+    source: leetcode
+    title: 872. Leaf-Similar Trees
+    url: https://leetcode.com/problems/leaf-similar-trees/
+    difficulty: 1
+    label: Easy
+  - id: programmers-42842
+    source: programmers
+    title: 카펫
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/42842
+    difficulty: 2
+    label: Lv.2
+  - id: programmers-49189
+    source: programmers
+    title: 가장 먼 노드
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/49189
+    difficulty: 2
+    label: Lv.3
+assignments:
+  jihoon-devstu:
+    picked: []
+    random: leetcode-872
+  myh7754:
+    picked: []
+    random: leetcode-547
+  perish95:
+    picked: []
+    random: programmers-49189
+  pinodo:
+    picked: []
+    random: programmers-42842
+  sjungwon03:
+    picked: []
+    random: leetcode-300
