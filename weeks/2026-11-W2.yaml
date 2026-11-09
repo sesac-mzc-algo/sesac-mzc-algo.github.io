@@ -1,0 +1,124 @@
+topic: backtracking
+topic-name: 백트래킹
+start: 2026-11-09
+end: 2026-11-15
+suggestions:
+  - id: leetcode-401
+    source: leetcode
+    title: 401. Binary Watch
+    url: https://leetcode.com/problems/binary-watch/
+    difficulty: 1
+    label: Easy
+  - id: programmers-12952
+    source: programmers
+    title: N-Queen
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/12952
+    difficulty: 2
+    label: Lv.2
+  - id: leetcode-39
+    source: leetcode
+    title: 39. Combination Sum
+    url: https://leetcode.com/problems/combination-sum/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-212
+    source: leetcode
+    title: 212. Word Search II
+    url: https://leetcode.com/problems/word-search-ii/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-257
+    source: leetcode
+    title: 257. Binary Tree Paths
+    url: https://leetcode.com/problems/binary-tree-paths/
+    difficulty: 1
+    label: Easy
+  - id: programmers-87694
+    source: programmers
+    title: 아이템 줍기
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/87694
+    difficulty: 2
+    label: Lv.2
+  - id: leetcode-95
+    source: leetcode
+    title: 95. Unique Binary Search Trees II
+    url: https://leetcode.com/problems/unique-binary-search-trees-ii/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-126
+    source: leetcode
+    title: 126. Word Ladder II
+    url: https://leetcode.com/problems/word-ladder-ii/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-17
+    source: leetcode
+    title: 17. Letter Combinations of a Phone Number
+    url: https://leetcode.com/problems/letter-combinations-of-a-phone-number/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-980
+    source: leetcode
+    title: 980. Unique Paths III
+    url: https://leetcode.com/problems/unique-paths-iii/
+    difficulty: 3
+    label: Hard
+  - id: leetcode-22
+    source: leetcode
+    title: 22. Generate Parentheses
+    url: https://leetcode.com/problems/generate-parentheses/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-301
+    source: leetcode
+    title: 301. Remove Invalid Parentheses
+    url: https://leetcode.com/problems/remove-invalid-parentheses/
+    difficulty: 3
+    label: Hard
+problems:
+  - id: leetcode-148
+    source: leetcode
+    title: 148. Sort List
+    url: https://leetcode.com/problems/sort-list/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-189
+    source: leetcode
+    title: 189. Rotate Array
+    url: https://leetcode.com/problems/rotate-array/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-377
+    source: leetcode
+    title: 377. Combination Sum IV
+    url: https://leetcode.com/problems/combination-sum-iv/
+    difficulty: 2
+    label: Medium
+  - id: leetcode-399
+    source: leetcode
+    title: 399. Evaluate Division
+    url: https://leetcode.com/problems/evaluate-division/
+    difficulty: 2
+    label: Medium
+  - id: programmers-12906
+    source: programmers
+    title: 같은 숫자는 싫어
+    url: https://school.programmers.co.kr/learn/courses/30/lessons/12906
+    difficulty: 1
+    label: Lv.1
+assignments:
+  jihoon-devstu:
+    picked: []
+    random: programmers-12906
+  myh7754:
+    picked: []
+    random: leetcode-377
+  perish95:
+    picked: []
+    random: leetcode-399
+  pinodo:
+    picked: []
+    random: leetcode-148
+  sjungwon03:
+    picked: []
+    random: leetcode-189
